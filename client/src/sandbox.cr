@@ -10,9 +10,45 @@ system_info = JSON.build do |json|
   end
 end
 
-File.open("output.log", "w") do |file|
-  Fuzzer.run_auth_fuzz(system_info, "password", weird_byte2: 0xF1, output: file)
-  file.flush
+blank_name = JSON.build do |json|
+  json.object do
+    json.field "Name", ""
+    json.field "SessionID", "0x11111117"
+  end
+end
+
+blank_session_and_name = JSON.build do |json|
+  json.object do
+    json.field "Name", ""
+    json.field "SessionID", ""
+  end
+end
+
+no_name = JSON.build do |json|
+  json.object do
+    json.field "SessionID", "0x11111117"
+  end
+end
+
+no_session = JSON.build do |json|
+  json.object do
+    json.field "Name", "SystemInfo" 
+  end
+end
+
+random_name = JSON.build do |json|
+  json.object do
+    json.field "Name", "BLAHBLAHBLAH"
+    json.field "SessionID", "0x11111117"    
+  end
+end
+
+(0x0..0xFF).each do |weird_byte2|
+  puts "0x#{weird_byte2.to_s(16).rjust(2, '0')}"
+  File.open("logs/output-#{weird_byte2.to_s.rjust(3, '0')}-#{weird_byte2.to_s(16).rjust(2, '0')}.log", "w") do |file|
+    Fuzzer.run_no_auth_fuzz(system_info, weird_byte2: weird_byte2, output: file)
+    file.flush
+  end
 end
 
 
