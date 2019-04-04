@@ -3,6 +3,8 @@ require "socket"
 require "io/hexdump"
 
 require "./dahua_hash"
+require "./command"
+require "./commands/*"
 
 module Fuzzer
   class LoginTimeout < Exception
@@ -36,246 +38,191 @@ module Fuzzer
   class CommandNoRoute < Exception
   end
 
-  def self.make_login_header(json)
-    "\xff\x01\x00\x00\x00\x00\x00\x00\x18\x00\x00\x00\x00\x00\xe8\x03#{String.new(Bytes[json.size])}\x00\x00\x00"
-  end
+  def self.run(command : Command, magic1 : Enumerable = (0..0xFF), magic2 : Enumerable  = (0x3..0x8), output = STDOUT, username = "admin", password = "", login = true)
+    start_time = Time.now
 
-  def self.make_special_header(json, weird_byte1, weird_byte2 = 0x3)
-    "\xff\x01\x00\x00\x17\x11\x11\x11\x00\x00\x00\x00\x00\x00" +
-    "#{String.new(Bytes[weird_byte1])}#{String.new(Bytes[weird_byte2])}#{String.new(Bytes[json.size])}\x00\x00\x00"
-  end
-
-  def self.run_auth_fuzz(command : String, password, weird_byte2 = 3, output = STDOUT)
+    # Results of the fuzz. Saves the reply's hash to it's text
+    # Key: Reply hash. 
+    # Value: Reply text.
     results = {} of UInt64 => String
+
+    # Which magic sequences went to what reply.
+    # Key: Reply hash. 
+    # Value: Array of magic sequences.
     results_matches = {} of UInt64 => Array(Int32)
+
+    # Which magic sequences caused a raise Exception.
+    # Key: Magic sequence
+    # Value: Reason for failure
     bad_results = {} of Int32 => String
 
-    0x100.times do |weird_byte1|
-      if weird_byte1 % 0x10 == 0
-        print "."
-      elsif weird_byte1 == 0xFF
-        puts puts
+    # Only parse the command via JSON if it's empty.
+    unless command.json.empty?
+      parsed = JSON.parse command.json
+      if parsed["Name"]?
+        puts "Starting command fuzz: Name - #{parsed["Name"]}"
+        puts
       end
+    end
 
-      retry_count = 0
-      success = false
-      while !success && retry_count < 5
-        begin
-          reply = run_auth_command(command, password, weird_byte1, weird_byte2)
-          unless results.keys.any? {|r| r == reply.hash}
-            results[reply.hash] = reply
-            results_matches[reply.hash] = [] of Int32
-          end
-          results_matches[reply.hash] << weird_byte1
-          success = true
-        rescue CommandEOF
-          bad_results[weird_byte1] = "Command EOF"
-          retry_count += 1
-          sleep 1
-        rescue CommandTimeout
-          bad_results[weird_byte1] = "Command Timeout"
-          retry_count += 1
-          sleep 1
-        rescue CommandLengthZero
-          bad_results[weird_byte1] = "Command Length Zero"
-          retry_count += 1
-          sleep 1
-        rescue CommandConnectionRefused
-          bad_results[weird_byte1] = "Command Connection Refused"
-          retry_count += 1
-          sleep 5
-        rescue CommandNoRoute
-          bad_results[weird_byte1] = "Command No Route"
-          retry_count += 1
-          sleep 5
-        rescue LoginEOF
-          bad_results[weird_byte1] = "Login EOF"
-          retry_count += 1
-          sleep 5
-        rescue LoginTimeout
-          bad_results[weird_byte1] = "Login Timeout"
-          retry_count += 1
-          sleep 1
-        rescue LoginFailure
-          bad_results[weird_byte1] = "Login Failure"
-          retry_count += 1
-          sleep 1
-        rescue LoginConnectionRefused
-          bad_results[weird_byte1] = "Login Connection Refused"
-          retry_count += 1
-          sleep 5
-        rescue LoginNoRoute
-          bad_results[weird_byte1] = "Login No Route"
-          retry_count += 1
-          sleep 5
+    # Go through each magic sequence
+    magic2.each do |magic2|
+      puts "Magic2: 0x#{magic2.to_s(16).rjust(2, '0')}"
+      magic1.each do |magic1|
+        # Output marker for progress
+        if magic1 % 0x10 == 0
+          print "."
+        elsif magic1 == 0xFF
+          print "!"
+          puts puts
         end
-      end
-      sleep 0.1
-    end
 
-    results.each do |k, v|
-      output.puts v.dump
-      output.puts "    Bytes: #{results_matches[k].map {|k| "0x#{k.to_s(16).rjust(2, '0')}"}}"
-    end
-    
-    output.puts
-    output.puts "Bad Results"
-    bad_results.each {|k, v| output.puts "#{k.to_s(16).rjust(2, '0')} : #{v}" }
-  end
+        # Build the magic sequence
+        magic = (magic2 << 8) + magic1
 
-  def self.run_no_auth_fuzz(command, weird_byte2 = 3, output = STDOUT)
-    results = {} of UInt64 => String
-    results_matches = {} of UInt64 => Array(Int32)
-    bad_results = {} of Int32 => String
+        retry_count = 0
+        # Did the command succeed in getting a reply?
+        success = false
+        
+        while !success && retry_count < 5
+          begin
+            # Make our own command from a blank one, add the magic sequence, and json from the original.
+            command = Command.new(magic1.to_u8, magic2.to_u8, command.json)
+            # Send the command and attempt to get a reply. This will throw errors depending on the problem.
+            reply = run_command(command, username: username, password: password, login: login)
 
-    0x100.times do |weird_byte1|
-      if weird_byte1 % 0x10 == 0
-        print "."
-      elsif weird_byte1 == 0xFF
-        puts puts
-      end
-
-      retry_count = 0
-      success = false
-      while !success && retry_count < 5
-        begin
-          reply = run_no_auth_command(command, weird_byte1, weird_byte2)
-          unless results.keys.any? {|r| r == reply.hash}
-            results[reply.hash] = reply
-            results_matches[reply.hash] = [] of Int32
+            # Check if we have a unique result
+            unless results.keys.any? {|r| r == reply.hash}
+              # Add it to the results
+              results[reply.hash] = reply
+              # Add a new array for magic sequence results
+              results_matches[reply.hash] = [] of Int32
+            end
+            # Add magic sequence to the result matches.
+            results_matches[reply.hash] << magic
+            success = true
+          rescue CommandEOF
+            bad_results[magic] = "Command EOF"
+            retry_count += 1
+            sleep 1
+          rescue CommandTimeout
+            bad_results[magic] = "Command Timeout"
+            retry_count += 1
+            sleep 1
+          rescue CommandLengthZero
+            bad_results[magic] = "Command Length Zero"
+            retry_count += 1
+            sleep 1
+          rescue CommandConnectionRefused
+            bad_results[magic] = "Command Connection Refused"
+            retry_count += 1
+            sleep 5
+          rescue CommandNoRoute
+            bad_results[magic] = "Command No Route"
+            retry_count += 1
+            sleep 5
+          rescue LoginEOF
+            bad_results[magic] = "Login EOF"
+            retry_count += 1
+            sleep 5
+          rescue LoginTimeout
+            bad_results[magic] = "Login Timeout"
+            retry_count += 1
+            sleep 1
+          rescue LoginFailure
+            bad_results[magic] = "Login Failure"
+            retry_count += 1
+            sleep 1
+          rescue LoginConnectionRefused
+            bad_results[magic] = "Login Connection Refused"
+            retry_count += 1
+            sleep 5
+          rescue LoginNoRoute
+            bad_results[magic] = "Login No Route"
+            retry_count += 1
+            sleep 5
           end
-          results_matches[reply.hash] << weird_byte1
-        rescue CommandEOF
-          bad_results[weird_byte1] = "Command EOF"
-          retry_count += 1
-          sleep 1
-        rescue CommandTimeout
-          bad_results[weird_byte1] = "Command Timeout"
-          retry_count += 1
-          sleep 1
-        rescue CommandLengthZero
-          bad_results[weird_byte1] = "Command Length Zero"
-          retry_count += 1
-          sleep 1
-        rescue CommandConnectionRefused
-          bad_results[weird_byte1] = "Command Connection Refused"
-          retry_count += 1
-          sleep 1
-        rescue CommandNoRoute
-          bad_results[weird_byte1] = "Command No Route"
-          retry_count += 1
-          sleep 5
         end
         sleep 0.1
       end
     end
 
+    output.puts "Command results: Started at #{start_time}"
+    output.puts "Total time: #{Time.now - start_time}"
+
     results.each do |k, v|
-      pp v
-      output.puts "    Bytes: #{results_matches[k].map {|k| "0x#{k.to_s(16).rjust(2, '0')}"}}"
+      if v.size < 500
+        output.puts v.dump
+      else
+        output.puts v[0..500].dump
+      end
+      output.puts "    Bytes: #{results_matches[k].map {|k| "0x#{k.to_s(16).rjust(4, '0')}"}}"
     end
     
     output.puts
     output.puts "Bad Results"
-    bad_results.each {|k, v| output.puts "#{k.to_s(16).rjust(2, '0')} : #{v}" }
+    bad_results.each {|k, v| output.puts "#{k.to_s(16).rjust(4, '0')} : #{v}" }
   end
 
-
-  def self.run_no_auth_command(command, weird_byte1, weird_byte2)
-    socket = TCPSocket.new
-    begin
-      socket = TCPSocket.new("192.168.11.109", 34567)
-      socket.read_timeout = 1
-      socket << (make_special_header(command, weird_byte1, weird_byte2) + command)
-      type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      weird = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      command_json_size = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      if command_json_size == 0
-        raise CommandLengthZero.new
-      end
-      command_reply = socket.read_string(command_json_size-1)
-      socket.read_byte #bleed this byte
-      socket.close
-      return command_reply
-    rescue e : IO::EOFError
-      raise CommandEOF.new
-    rescue e : IO::Timeout
-      raise CommandTimeout.new
-    rescue e
-      if e.to_s.includes? "Connection refused"
-        raise CommandConnectionRefused.new
-      elsif e.to_s.includes? "No route to host"
-        raise CommandNoRoute.new
-      else
-        raise e
-      end
-    ensure
-      socket.close
-    end
-    raise Exception.new "SHOULDNT GET HERE!"
-  end
-
-  def self.run_auth_command(command : String, password, weird_byte1, weird_byte2) : String
-    login = JSON.build do |json|
-      json.object do
-        json.field "EncryptType", "MD5"
-        json.field "LoginType", "DVRIP-Xm030"
-        json.field "UserName", "admin"
-        json.field "PassWord", Dahua.digest(password)
-      end
-    end
+  def self.run_command(command : Command, username = "admin", password = "", login = true) : String
+    login_command = Command::Login.new(username, password)
 
     socket = TCPSocket.new
 
     begin
       socket = TCPSocket.new("192.168.11.109", 34567)
+      # Very important, camera replies usually within 0.1-0.2 seconds, need to adjust this accordingly.
       socket.read_timeout = 1
-      socket << (make_login_header(login) + login)
-      type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      weird = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      login_json_size = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-      login_reply = socket.read_string(login_json_size).chomp("\x00")
-      if login_reply
+      # Send the data via socket
+      
+      #login_reply = nil
 
-        login_reply_parsed = JSON.parse login_reply
+      if login
+        socket << login_command.make
 
-        if login_reply_parsed["Ret"] == 100
-          begin
-            socket << (make_special_header(command, weird_byte1, weird_byte2) + command)
-            type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-            sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-            unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-            weird = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-            command_json_size = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
-            if command_json_size == 0
-              raise CommandLengthZero.new
-            end
-            command_reply = socket.read_string(command_json_size-1)
-            socket.read_byte #bleed this byte
-            socket.close
-            return command_reply
-          rescue e : IO::EOFError
-            raise CommandEOF.new
-          rescue e : IO::Timeout
-            raise CommandTimeout.new
-          rescue e
-            if e.to_s.includes? "Connection refused"
-              raise CommandConnectionRefused.new
-            elsif e.to_s.includes? "No route to host"
-              raise CommandNoRoute.new
-            else
-              raise e
-            end
-          ensure
-            socket.close
+        # Start consuming the header data
+        type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+        sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+        unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+        weird = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+        login_json_size = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+
+        # Get the rest of the reply data 
+        login_reply = socket.read_string(login_json_size).chomp("\x00")
+      end
+
+      if !login || (login_reply && JSON.parse(login_reply)["Ret"] == 100)
+        begin
+          socket << command.make
+          type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+          sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+          unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+          weird = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+          command_json_size = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
+          if command_json_size == 0
+            raise CommandLengthZero.new
           end
-        else
-          raise LoginFailure.new
+          command_reply = socket.read_string(command_json_size-1)
+          socket.read_byte #bleed this byte
+          socket.close
+          return command_reply
+        rescue e : IO::EOFError
+          raise CommandEOF.new
+        rescue e : IO::Timeout
+          raise CommandTimeout.new
+        rescue e
+          if e.to_s.includes? "Connection refused"
+            raise CommandConnectionRefused.new
+          elsif e.to_s.includes? "No route to host"
+            raise CommandNoRoute.new
+          else
+            raise e
+          end
+        ensure
+          socket.close
         end
+      else
+        raise LoginFailure.new
       end
     rescue e : IO::EOFError
       raise LoginEOF.new
