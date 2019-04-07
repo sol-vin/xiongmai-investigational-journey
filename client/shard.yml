@@ -5,8 +5,8 @@ authors:
   - Ian Rash <redcodefinal@gmail.com>
 
 targets:
-  client:
-    main: src/client.cr
+  sandbox:
+    main: src/sandbox.cr
 
 crystal: 0.27.2
 

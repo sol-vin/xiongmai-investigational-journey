@@ -38,7 +38,7 @@ module Fuzzer
   class CommandNoRoute < Exception
   end
 
-  def self.run(command : Command, magic1 : Enumerable = (0..0xFF), magic2 : Enumerable  = (0x3..0x8), output = STDOUT, username = "admin", password = "", login = true)
+  def self.run(command : Command, magic1 : Enumerable = (0..0xFF), magic2 : Enumerable  = (0x3..0x8), output = STDOUT, username = "admin", password = "", hash_password = true, login = true)
     start_time = Time.now
 
     # Results of the fuzz. Saves the reply's hash to it's text
@@ -83,7 +83,7 @@ module Fuzzer
         retry_count = 0
         # Did the command succeed in getting a reply?
         success = false
-        
+
         while !success && retry_count < 5
           begin
             # Make our own command from a blank one, add the magic sequence, and json from the original.
@@ -151,10 +151,10 @@ module Fuzzer
     output.puts "Total time: #{Time.now - start_time}"
 
     results.each do |k, v|
-      if v.size < 500
+      if v.valid_encoding?
         output.puts v.dump
       else
-        output.puts v[0..500].dump
+        output.puts "BINARY FILE #{v[0..20].dump}"
       end
       output.puts "    Bytes: #{results_matches[k].map {|k| "0x#{k.to_s(16).rjust(4, '0')}"}}"
     end
@@ -164,8 +164,7 @@ module Fuzzer
     bad_results.each {|k, v| output.puts "#{k.to_s(16).rjust(4, '0')} : #{v}" }
   end
 
-  def self.run_command(command : Command, username = "admin", password = "", login = true) : String
-    login_command = Command::Login.new(username, password)
+  def self.run_command(command : Command, username = "admin", password = "", hash_password = true, login = true) : String
 
     socket = TCPSocket.new
 
@@ -178,6 +177,7 @@ module Fuzzer
       #login_reply = nil
 
       if login
+        login_command = Command::Login.new(username, password, hash_password: hash_password)
         socket << login_command.make
 
         # Start consuming the header data
@@ -191,7 +191,7 @@ module Fuzzer
         login_reply = socket.read_string(login_json_size).chomp("\x00")
       end
 
-      if !login || (login_reply && JSON.parse(login_reply)["Ret"] == 100)
+      if login_reply && JSON.parse(login_reply)["Ret"] == 100
         begin
           socket << command.make
           type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
@@ -239,7 +239,6 @@ module Fuzzer
     ensure
       socket.close
     end
-    raise Exception.new "SHOULDNT GET HERE!"
   end
 end
 

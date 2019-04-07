@@ -1,11 +1,11 @@
 require "../dahua_hash"
 
 class Command::Login < Command
-  def initialize(@user = "", @password = "")
+  def initialize(@user = "", @password = "", @hash_password = true)
     super(0xe8_u8, 0x03_u8, JSON.build do |json|
       json.object do
         json.field "UserName", @user
-        json.field "PassWord", Dahua.digest(@password)
+        json.field "PassWord", (@hash_password ? Dahua.digest(@password) : @password)
       end
     end)
   end
