@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.60 scan initiated Tue Apr  9 04:06:36 2019 as: nmap -v -sV -sT -p- -oA nmap_full 192.168.11.109 -->
+<nmaprun scanner="nmap" args="nmap -v -sV -sT -p- -oA nmap_full 192.168.11.109" start="1554807996" startstr="Tue Apr  9 04:06:36 2019" version="7.60" xmloutputversion="1.04">
+<scaninfo type="connect" protocol="tcp" numservices="65535" services="1-65535"/>
+<verbose level="1"/>
+<debugging level="0"/>
+<taskbegin task="Ping Scan" time="1554807996"/>
+<taskend task="Ping Scan" time="1554807996" extrainfo="1 total hosts"/>
+<taskbegin task="Parallel DNS resolution of 1 host." time="1554807996"/>
+<taskend task="Parallel DNS resolution of 1 host." time="1554807996"/>
+<taskbegin task="Connect Scan" time="1554807996"/>
+<taskend task="Connect Scan" time="1554808004" extrainfo="65535 total ports"/>
+<taskbegin task="Service scan" time="1554808004"/>
+<taskprogress task="Service scan" time="1554808150" percent="20.00" remaining="584" etc="1554808734"/>
+<taskend task="Service scan" time="1554808160" extrainfo="5 services on 1 host"/>
+<taskbegin task="NSE" time="1554808160"/>
+<taskend task="NSE" time="1554808176"/>
+<taskbegin task="NSE" time="1554808176"/>
+<taskend task="NSE" time="1554808177"/>
+<host starttime="1554807996" endtime="1554808177"><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.11.109" addrtype="ipv4"/>
+<hostnames>
+<hostname name="badcamera.local" type="PTR"/>
+</hostnames>
+<ports><extraports state="closed" count="65530">
+<extrareasons reason="conn-refused" count="65530"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="554"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="rtsp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8000"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http-alt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8899"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ospf-lite" method="table" conf="3"/></port>
+<port protocol="tcp" portid="34567"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="dhanalakshmi" method="table" conf="3"/></port>
+</ports>
+<times srtt="594" rttvar="381" to="100000"/>
+</host>
+<runstats><finished time="1554808177" timestr="Tue Apr  9 04:09:37 2019" elapsed="181.38" summary="Nmap done at Tue Apr  9 04:09:37 2019; 1 IP address (1 host up) scanned in 181.38 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

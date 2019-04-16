@@ -1,6 +1,6 @@
 class Command::Blank < Command
-  def initialize(magic1 = 0, magic2 = 0)
-    super(magic1: magic1, magic2: magic2, json: JSON.build do |json|
+  def initialize(magic = 0_u16, session_id = 0)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", ""
       end
@@ -9,19 +9,19 @@ class Command::Blank < Command
 end
 
 class Command::BlankWithSession < Command
-  def initialize(magic1 = 0xDC, magic2 = 0x05, @session_id = 0)
-    super(magic1: magic1, magic2: magic2, json: JSON.build do |json|
+  def initialize(magic = 0_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", ""
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end
 end
 
 class Command::NoName < Command
-  def initialize(magic1 = 0, magic2 = 0)
-    super(magic1: magic1, magic2: magic2, json: JSON.build do |json|
+  def initialize(magic = 0_u16,  session_id = 0_u32)
+    super(magic: magic, session_id: session_id,json: JSON.build do |json|
       json.object do
       end
     end)
@@ -29,21 +29,21 @@ class Command::NoName < Command
 end
 
 class Command::NoNameWithSession < Command
-  def initialize(magic1 = 0, magic2 = 0, @session_id = 0)
-    super(magic1: magic1, magic2: magic2, json: JSON.build do |json|
+  def initialize(magic = 0_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id,json: JSON.build do |json|
       json.object do
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end
 end
 
 class Command::RandomName < Command
-  def initialize(magic1 = 0, magic2 = 0, @session_id = 0)
-    super(magic1: magic1, magic2: magic2, json: JSON.build do |json|
+  def initialize(magic = 0_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", "ABCDEFG"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end

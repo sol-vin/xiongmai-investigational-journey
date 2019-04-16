@@ -1,9 +1,9 @@
 class Command::SystemFunction < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0x50_u8, magic2: 0x05_u8, json: JSON.build do |json|
+  def initialize(magic = 0x0550_u16, @session_id = 0_u32)
+    super(magic: magic, json: JSON.build do |json|
       json.object do
         json.field "Name", "SystemFunction"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end

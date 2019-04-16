@@ -1,6 +1,6 @@
 class Command::OPVersionList < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0x00_u8, magic2: 0x00_u8, json: JSON.build do |json|
+  def initialize(magic = 0x0000_u16, @session_id = 0_u32)
+    super(magic: magic, json: JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionList"
         json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
@@ -10,8 +10,8 @@ class Command::OPVersionList < Command
 end
 
 class Command::OPReqVersion < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0x00_u8, magic2: 0x00_u8, json: JSON.build do |json|
+  def initialize(magic = 0x0000_u16, @session_id = 0_u32)
+    super(magic: magic, json: JSON.build do |json|
       json.object do
         json.field "Name", "OPReqVersion"
         json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
@@ -21,22 +21,22 @@ class Command::OPReqVersion < Command
 end
 
 class Command::OPVersionReq < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0x00_u8, magic2: 0x00_u8, json: JSON.build do |json|
+  def initialize(magic = 0x0000_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionReq"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end
 end
 
 class Command::OPVersionRep < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0x00_u8, magic2: 0x00_u8, json: JSON.build do |json|
+  def initialize(magic = 0x0000_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionRep"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end

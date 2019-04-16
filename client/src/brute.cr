@@ -1,8 +1,8 @@
 require "./dahua_hash"
 
 module Brute
-  def self.run(hash : String) : String
-    current = "a"
+  def self.run(hash : String, start = "a") : String
+    current = start
 
     counter = 0
     success = false

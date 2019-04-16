@@ -1,14 +1,17 @@
 class Command
-  getter magic1 : UInt8
-  getter magic2 : UInt8
+  getter magic : UInt16
+  getter session_id : UInt32
   getter json : String
 
-  def initialize(@magic1, @magic2, @json)
+  def initialize(@magic, @session_id = 0_u32, @json = "")
   end
 
-  def initialize(magic1 = 0, magic2 = 0, @json = "")
-    @magic1 = magic1.to_u8
-    @magic2 = magic2.to_u8
+  def magic1 : UInt8
+    (magic & 0xFF).to_u8
+  end
+
+  def magic2 : UInt8
+    (magic >> 8).to_u8
   end
 
   def make_header
@@ -28,7 +31,7 @@ class Command
     size_io.write_bytes(self.json.size, IO::ByteFormat::LittleEndian)
 
     "\xff\x01\x00\x00#{session_io.to_s}\x00\x00\x00\x00\x00\x00" +
-    "#{String.new(Bytes[self.magic1])}#{String.new(Bytes[self.magic2])}#{size_io.to_s}"
+    "#{String.new(Bytes[self.magic1, self.magic2])}#{size_io.to_s}"
   end
 
   def make : String

@@ -1,0 +1,14 @@
+# Nmap 7.60 scan initiated Tue Apr  9 04:06:36 2019 as: nmap -v -sV -sT -p- -oA nmap_full 192.168.11.109
+Nmap scan report for badcamera.local (192.168.11.109)
+Host is up (0.00059s latency).
+Not shown: 65530 closed ports
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http?
+554/tcp   open  rtsp?
+8000/tcp  open  http-alt?
+8899/tcp  open  ospf-lite?
+34567/tcp open  dhanalakshmi?
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Tue Apr  9 04:09:37 2019 -- 1 IP address (1 host up) scanned in 181.38 seconds

@@ -1,0 +1,5 @@
+# Nmap 7.60 scan initiated Tue Apr  9 04:06:36 2019 as: nmap -v -sV -sT -p- -oA nmap_full 192.168.11.109
+# Ports scanned: TCP(65535;1-65535) UDP(0;) SCTP(0;) PROTOCOLS(0;)
+Host: 192.168.11.109 (badcamera.local)	Status: Up
+Host: 192.168.11.109 (badcamera.local)	Ports: 80/open/tcp//http?///, 554/open/tcp//rtsp?///, 8000/open/tcp//http-alt?///, 8899/open/tcp//ospf-lite?///, 34567/open/tcp//dhanalakshmi?///	Ignored State: closed (65530)
+# Nmap done at Tue Apr  9 04:09:37 2019 -- 1 IP address (1 host up) scanned in 181.38 seconds

@@ -1,9 +1,9 @@
 class Command::KeepAlive < Command
-  def initialize(@session_id = 0)
-    super(magic1: 0xee_u8, magic2: 0x03_u8, json: JSON.build do |json|
+  def initialize(magic = 0x03ee_u16, session_id = 0_u32)
+    super(magic: magic, session_id: session_id, json: JSON.build do |json|
       json.object do
         json.field "Name", "KeepAlive"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
   end
