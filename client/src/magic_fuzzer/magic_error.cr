@@ -1,5 +1,11 @@
 module MagicError
-  ALL_ERRORS = LOGIN_ERRORS + SEND_ERRORS + RECIEVE_ERRORS
+  ALL_ERRORS = SOCKET_ERRORS + LOGIN_ERRORS + SEND_ERRORS + RECIEVE_ERRORS
+
+
+  SOCKET_ERRORS = [SocketBrokenPipe,
+                   SocketConnectionRefused,
+                   SocketConnectionReset,
+                   SocketNoRoute]
 
   LOGIN_ERRORS = [LoginConnectionRefused, 
                   LoginEOF, 
@@ -23,7 +29,11 @@ module MagicError
                     RecieveBrokenPipe,
                     RecieveConnectionReset]
 
-  RESTART_ERRORS = [LoginConnectionRefused, 
+  RESTART_ERRORS = [SocketBrokenPipe,
+                    SocketConnectionRefused,
+                    SocketConnectionReset,
+                    SocketNoRoute,
+                    LoginConnectionRefused, 
                     RecieveConnectionRefused, 
                     SendConnectionRefused, 
                     LoginBrokenPipe, 
@@ -35,6 +45,18 @@ module MagicError
                     LoginConnectionReset, 
                     RecieveConnectionReset, 
                     SendConnectionReset]
+  class SocketConnectionRefused < Exception
+  end 
+
+  class SocketNoRoute < Exception
+  end
+
+  class SocketBrokenPipe < Exception
+  end
+    
+  class SocketConnectionReset < Exception
+  end
+
 
   class LoginTimeout < Exception
   end

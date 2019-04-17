@@ -6,6 +6,8 @@ require "../commands/*"
 
 require "./magic_error"
 require "./magic_socket"
+require "./magic_report"
+
 
 class MagicFuzzer(Command)
   CLEAR_SCREEN = "\e[H\e[2J"
@@ -19,23 +21,34 @@ class MagicFuzzer(Command)
   # Handles output
   @tick_fiber  : Fiber = spawn {}
 
-  POOL_MAX = 16
-  # List of what ports are bound to what magics
+  POOL_MAX = 20
+  # List of what sockets are processing what magic
   @socket_pool = {} of MagicSocket => UInt16
+  # List of sockets and it's current state
   @socket_states = {} of MagicSocket => String
+  # List of sockets and the time they started
   @socket_times = {} of MagicSocket => Time
 
+  # How many replies recieved
   @successful_replies = 0
+
+  # Unique results, hash of the message => message
   @results = {} of UInt64 => String
+  # Matches what message hash was returned with what magics.
   @results_matches = {} of UInt64 => Array(UInt16)
+  # What magics failed in some way.
   @bad_results = {} of UInt16 => String
   
   @factory_state = :off
 
   @log_messages = [] of String
   @start_time : Time = Time.now
-  MAX_TIMEOUT = 120
+  MAX_TIMEOUT = 10
+  
+  CAMERA_WAIT_TIME = Time::Span.new(0, 0, 110)
+  
 
+  TEST = 0x12343
   @last_factory_check_in : Time = Time.now
 
   TCP_PORT = 34567
@@ -68,10 +81,24 @@ class MagicFuzzer(Command)
     @socket_times = {} of MagicSocket => Time
 
     POOL_MAX.times do |i|
-      socket = MagicSocket.new(@target_ip, TCP_PORT)
-      @socket_pool[socket] = 0
-      @socket_states[socket] = "unused"
-      @socket_times[socket] = Time.now
+      success = false
+
+      until success
+        begin
+          socket = MagicSocket.new(@target_ip, TCP_PORT)
+          @socket_pool[socket] = 0
+          @socket_states[socket] = "unused"
+          @socket_times[socket] = Time.now
+          success = true
+        rescue e
+          if MagicError::SOCKET_ERRORS.includes? e.class
+            clear_screen
+            puts "Waiting for camera to come online"
+          else
+            raise e
+          end
+        end
+      end
     end
   end
 
@@ -107,6 +134,7 @@ class MagicFuzzer(Command)
 
   def close
     @socket_pool.each {|s, _| s.close}
+    @is_running = false
   end
 
   private def factory_check_in
@@ -147,8 +175,9 @@ class MagicFuzzer(Command)
             #   There is success or,
             #   Max number of retries reached or,
             #   Max timeout reached
-            until success || (Time.now- @socket_times[found_socket] ).to_i > MAX_TIMEOUT
+            until success || (Time.now- @socket_times[found_socket] ).to_i > MAX_TIMEOUT || !is_running?
               begin
+                # Only login if we need to
                 if @login
                   @socket_states[found_socket] = "logging_in"
                   # login, raises an error if login failed
@@ -159,11 +188,13 @@ class MagicFuzzer(Command)
 
                 # make the message from the command class, with the custom magic
                 c = Command.new(magic: magic.to_u16)
+                
                 # send
                 found_socket.send_message c
 
                 @socket_states[found_socket] = "sent_message"
 
+                # yield to let other fibers have time
                 Fiber.yield
 
                 @socket_states[found_socket] = "recieving_message"
@@ -187,15 +218,30 @@ class MagicFuzzer(Command)
                 @successful_replies += 1
                 success = true
               rescue e
-                @socket_states[found_socket] = e.inspect
+                # output the error to the socket's state
+                @socket_states[found_socket] = "spawn socket: " + e.inspect
                 # Check to see if it's an error we expect
                 if MagicError::ALL_ERRORS.any? {|err| err == e.class}
                   # Restart the socket, close, reopen, and replace it
                   begin
+                    # Replace the socket both in the pool, and in this fiber
                     found_socket = replace_socket(found_socket, MagicSocket.new(@target_ip, TCP_PORT))
                     @socket_pool[found_socket] = magic.to_u16
                   rescue e
-                    @socket_states[found_socket] = e.inspect
+                    if MagicError::SOCKET_ERRORS.includes? e.class
+                      # The camera has crashed, so we need to wait until it comes back up
+                      # Move the socket time forward CAMERA_WAIT_TIME seconds, to prevent time out due to crash
+                      
+                      # This ensures that the order of sockets is randomized to ensure that if a command is causing a disconnect, that some new 
+                      # sockets will still be able to get through and resolve
+                      random_wait_time = CAMERA_WAIT_TIME + Time::Span.new(0, 0, rand(10)+5)
+                      @socket_times[found_socket] += random_wait_time
+                      print "\a"
+                      @socket_states[found_socket] = "SOCKET ERROR: SLEEPING #{random_wait_time} SECONDS"
+
+                      sleep random_wait_time
+                    end
+                    @socket_states[found_socket] = "replace_socket: " + e.inspect
                   end
                 else
                   # Mark bad socket, need to figure out how to handle this gracefully
@@ -207,6 +253,7 @@ class MagicFuzzer(Command)
               # Attempt Fiber.yield once a loop
               Fiber.yield
             end
+            #Add it to the bad results
             @bad_results[magic.to_u16] = e.inspect unless success
             @socket_states[found_socket] = "unused"
           end
@@ -225,7 +272,7 @@ class MagicFuzzer(Command)
     end
   end
 
-  def tick
+  private def tick
     clear_screen
     puts "Fuzzing #{Command}"
     puts "Time: #{Time.now - @start_time}"
@@ -259,22 +306,8 @@ class MagicFuzzer(Command)
   end
 
   def report
-    @output.puts "Command results: Started at #{@start_time}"
-    @output.puts "Total time: #{Time.now - @start_time}"
-
-    @results.each do |k, v|
-      if v.valid_encoding?
-        @output.puts v.dump
-      else
-        @output.puts "BINARY FILE #{v[0..20].dump}"
-      end
-      @output.puts "    Bytes: #{@results_matches[k].map {|k| "0x#{k.to_s(16).rjust(4, '0')}"}}"
-    end
-    
-    @output.puts
-    @output.puts "Bad Results"
-    @bad_results.each {|k, v| @output.puts "#{k.to_s(16).rjust(4, '0')} : #{v}" }
-    @output.flush
+    mr = MagicReport.new @output
+    mr.make(@start_time, @results, @results_matches, @bad_results)
   end
 end
 

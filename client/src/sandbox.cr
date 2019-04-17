@@ -20,8 +20,6 @@ end
 
 
 
-
-
 # File.open("../besder_resources/logs/users/user/camera_param.log", "w") do |file|
 #   Fuzzer.run(
 #     Command::CameraParam,

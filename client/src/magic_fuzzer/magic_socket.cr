@@ -3,13 +3,26 @@ require "socket"
 require "./magic_error"
 
 class MagicSocket < TCPSocket
-  getter bound_port : UInt16 = 0_u16
-  LOGIN_RET_SUCCESS = 100
-  LOGIN_RET_UNKNOWN = 106
-  LOGIN_RET_FAILURE = 205
+
   def initialize(host, port)
-    super host, port
-    self.read_timeout = 5
+    begin
+      super host, port
+      self.read_timeout = 5
+
+    rescue e
+      if e.to_s.includes? "Connection refused"
+        raise MagicError::SocketConnectionRefused.new
+      elsif e.to_s.includes? "No route to host"
+        raise MagicError::SocketNoRoute.new
+      elsif e.to_s.includes? "Broken pipe"
+        raise MagicError::SocketBrokenPipe.new
+      elsif e.to_s.includes? "Connection reset"
+        raise MagicError::SocketConnectionReset.new 
+      else
+        raise e
+      end
+    end
+
   end
 
   def login(username, password)
@@ -18,7 +31,7 @@ class MagicSocket < TCPSocket
       self << login_command.make
       reply = recieve_message
       begin
-        unless [LOGIN_RET_SUCCESS, LOGIN_RET_UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
+        unless [Command::Login::SUCCESS, Command::Login::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
           raise MagicError::LoginFailure.new
         end
       rescue e
