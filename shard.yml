@@ -7,6 +7,13 @@ authors:
 targets:
   sandbox:
     main: src/sandbox.cr
+  magic_cli:
+    main: src/magic_fuzzer/magic_cli.cr
+
+
+dependencies:
+  clicr:
+    github: j8r/clicr
 
 crystal: 0.27.2
 

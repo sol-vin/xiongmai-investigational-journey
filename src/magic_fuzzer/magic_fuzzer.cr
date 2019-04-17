@@ -41,7 +41,6 @@ class MagicFuzzer(Command)
   
   @factory_state = :off
 
-  @log_messages = [] of String
   @start_time : Time = Time.now
   MAX_TIMEOUT = 10
   
@@ -57,8 +56,6 @@ class MagicFuzzer(Command)
 
   SESSION_REGEX = /,?\h?\"SessionID\"\h\:\h\"0x.{8}\"/
 
-  @last_error = ""
-  @error_log = {} of Time => String
   @current_magic = 0
 
   def initialize(@magic : Enumerable = (0x0000..0x08FF), 
@@ -292,10 +289,7 @@ class MagicFuzzer(Command)
     puts "Total Successes: #{@successful_replies}"
     puts "Total Unique Replies: #{@results.keys.size}"
     puts "Total Bad Results: #{@bad_results.keys.size}"
-    puts "Error: #{@last_error}"
-    puts "Errors: #{@error_log}"
     puts 
-    #@results.values.each {|v| puts v}
     sleep 0.2
   end
 
