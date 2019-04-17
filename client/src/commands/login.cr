@@ -1,8 +1,8 @@
 require "../dahua_hash"
 
-class Command::Login < Command
+class Command::Login < XMMessage
   def initialize(magic = 0x03e8_u16, session_id = 0_u32, @username = "", @password = "")
-    super(magic: magic, session_id: session_id, json: JSON.build do |json|
+    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "EncryptType", "MD5"
         json.field "LoginType", "DVRIP-Xm030"

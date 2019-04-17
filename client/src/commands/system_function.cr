@@ -1,6 +1,6 @@
-class Command::SystemFunction < Command
+class Command::SystemFunction < XMMessage
   def initialize(magic = 0x0550_u16, @session_id = 0_u32)
-    super(magic: magic, json: JSON.build do |json|
+    super(magic: magic, message:  JSON.build do |json|
       json.object do
         json.field "Name", "SystemFunction"
         json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"

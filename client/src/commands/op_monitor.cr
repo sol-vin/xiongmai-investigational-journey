@@ -1,4 +1,4 @@
-class Command::OPMonitor < Command
+class Command::OPMonitor < XMMessage
   COMBIN_MODES = ["CONNECT_ALL", "NONE"]
   ACTIONS = ["Claim"]
   ACTION1S = ["Start"]
@@ -7,7 +7,7 @@ class Command::OPMonitor < Command
 
 
   def initialize(magic = 0x0585_u16, session_id = 0_u32)
-    super(magic: magic, session_id: session_id, json: JSON.build do |json|
+    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "Name", "OPMonitor"
         json.field "OPMonitor" do
