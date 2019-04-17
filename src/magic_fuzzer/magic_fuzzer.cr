@@ -84,7 +84,7 @@ class MagicFuzzer(Command)
         begin
           socket = MagicSocket.new(@target_ip, TCP_PORT)
           @socket_pool[socket] = 0
-          @socket_states[socket] = "unused"
+          @socket_states[socket] = "free"
           @socket_times[socket] = Time.now
           success = true
         rescue e
@@ -104,7 +104,6 @@ class MagicFuzzer(Command)
     @socket_states.delete old_sock
 
     @socket_pool[new_sock] = 0
-    @socket_states[new_sock] = "replaced"
     @socket_times[new_sock] = @socket_times[old_sock]
 
     @socket_times.delete old_sock
@@ -112,7 +111,7 @@ class MagicFuzzer(Command)
   end
 
   private def find_free_socket
-    sockets = (@socket_states.find { |socket, state| state == "unused"})
+    sockets = (@socket_states.find { |socket, state| state == "free"})
     if sockets
       sockets[0]
     else
@@ -252,7 +251,7 @@ class MagicFuzzer(Command)
             end
             #Add it to the bad results
             @bad_results[magic.to_u16] = e.inspect unless success
-            @socket_states[found_socket] = "unused"
+            @socket_states[found_socket] = "free"
           end
         end
         Fiber.yield
@@ -276,9 +275,13 @@ class MagicFuzzer(Command)
     puts "Current: #{@current_magic-@magic.begin}/#{@magic.size} : #{@current_magic.to_s(16)}"
     puts "Total Completion: #{(((@current_magic-@magic.begin).to_f / @magic.size.to_f)*100).round(3)}%"
     puts "Waiting for magics: "
-    @socket_pool.each do |socket, magic|
-      if @socket_states[socket] != :unused
-        puts "0x#{magic.to_s(16).rjust(4, '0')} : #{@socket_states[socket].rjust(80, ' ')} : #{socket.hash.to_s.rjust(20, ' ')} : #{(Time.now-@socket_times[socket]).to_s.rjust(20, ' ')}"
+    @socket_pool.values.sort{|a, b| a <=> b}.each do |magic|
+      found_socket = @socket_pool.find{|k,v| v == magic}
+      if found_socket
+        socket = found_socket[0]
+        if @socket_states[found_socket] != "free"
+          puts "0x#{magic.to_s(16).rjust(4, '0')} : #{@socket_states[socket].rjust(80, ' ')} : #{found_socket.hash.to_s.rjust(20, ' ')} : #{(Time.now-@socket_times[socket]).to_s.rjust(20, ' ')}"
+        end
       end
     end
     puts
@@ -294,7 +297,7 @@ class MagicFuzzer(Command)
   end
 
   def wait_until_done
-    until @socket_states.all? {|socket, state| state == "unused"} && @factory_state == :done
+    until @socket_states.all? {|socket, state| state == "free"} && @factory_state == :done
       sleep 1
     end
   end

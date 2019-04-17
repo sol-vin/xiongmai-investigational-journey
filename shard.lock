@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  clicr:
+    github: j8r/clicr
+    version: 0.5.1
+

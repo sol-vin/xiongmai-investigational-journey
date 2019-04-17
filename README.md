@@ -1,22 +1,26 @@
-# client
+# Besder Investigational Journey
 
-TODO: Write a description here
+This is just a placeholder right now until I post my article on 0x42424242.in
 
 ## Installation
 
-TODO: Write installation instructions here
+```yaml
+dependencies:
+  cli:
+    github: redcodefinal/besder-investigational-journey
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+Used to fuzz the shit out of the Besder IPC.
 
 ## Development
 
-TODO: Write development instructions here
+Good luck!
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/client/fork>)
+1. Fork it (<https://github.com/redcodefinal/besder-investigational-journey/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

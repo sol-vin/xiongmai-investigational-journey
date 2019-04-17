@@ -5,7 +5,7 @@ require "./magic_fuzzer"
 
 
 File.open("./logs/test.log", "w+") do |file|
-  m = MagicFuzzer(Command::SystemInfo).new(
+  m = MagicFuzzer(Command::Blank).new(
     magic: (0x0000..0x1000), 
     username: "admin",
     password: "password",

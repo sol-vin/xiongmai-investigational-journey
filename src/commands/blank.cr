@@ -1,5 +1,5 @@
 class Command::Blank < XMMessage
-  def initialize(magic = 0_u16, session_id = 0)
+  def initialize(magic = 0_u16, session_id = 0_u32)
     super(magic: magic, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "Name", ""
