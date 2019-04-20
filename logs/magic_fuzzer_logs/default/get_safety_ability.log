@@ -1,0 +1,43 @@
+Command results: Started at 2019-04-18 20:07:00 -07:00
+Total time: 00:51:34.994305000
+"{ \"AliveInterval\" : 0, \"ChannelNum\" : 0, \"DeviceType \" : \"DVR\", \"ExtraChannel\" : 10976316, \"Ret\" : 205, \"SessionID\" : \"0x000042C9\" }\n"
+    Bytes: ["0x03e8"]
+"{ \"Name\" : \"\", \"Ret\" : 102, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x03f2", "0x080e"]
+"{ \"Name\" : \"OPMonitor\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x0585"]
+"{ \"Name\" : \"OPPlayBack\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x0590"]
+"{ \"Name\" : \"OPTalk\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x059a"]
+"{ \"Name\" : \"GetSafetyAbility\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\", \"authorizeStat\" : null }\n"
+    Bytes: ["0x0672"]
+"{ \"Name\" : \"OPRecordSnap\", \"Ret\" : 100, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x07fc"]
+"{ \"Name\" : \"\", \"Ret\" : 105, \"SessionID\" : \"0x00000000\" }\n"
+    Bytes: ["0x0852"]
+"{ \"Name\" : \"\", \"Ret\" : 106, \"SessionID\" : \"0x000066E9\" }\n"
+    Bytes: ["0x02ee", "0x0192", "0x00a7", "0x0e27", "0x0041", "0x01c1", "0x0032", "0x0fa6", "0x03f7", "0x0740", "0x0d85", "0x0c3e", "0x095d", "0x06ee", "0x02b7", "0x08ac", "0x0db9", "0x08d6", "0x00bb", "0x0b37", "0x0606", "0x0996", "0x0cfb", "0x0afa", "0x00ba", "0x0974", "0x0d51", "0x0906", "0x0f42", "0x05e2"]
+
+Bad Results
+0fed : #<MagicError::RecieveTimeout:>
+0fee : #<MagicError::RecieveTimeout:>
+0fef : #<MagicError::RecieveTimeout:>
+0ff0 : #<MagicError::RecieveTimeout:>
+0ff1 : #<MagicError::RecieveTimeout:>
+0ff2 : #<MagicError::RecieveTimeout:>
+0ff3 : #<MagicError::RecieveTimeout:>
+0ff4 : #<MagicError::RecieveTimeout:>
+0ff5 : #<MagicError::RecieveTimeout:>
+0ff6 : #<MagicError::RecieveTimeout:>
+0ff7 : #<MagicError::RecieveTimeout:>
+0ff8 : #<MagicError::RecieveTimeout:>
+0ff9 : #<MagicError::RecieveTimeout:>
+0ffa : #<MagicError::RecieveTimeout:>
+0ffb : #<MagicError::RecieveTimeout:>
+0ffc : #<MagicError::RecieveTimeout:>
+0ffd : #<MagicError::RecieveTimeout:>
+0ffe : #<MagicError::RecieveTimeout:>
+0fff : #<MagicError::RecieveTimeout:>
+1000 : #<MagicError::RecieveTimeout:>
+0957 : #<MagicError::RecieveTimeout:>

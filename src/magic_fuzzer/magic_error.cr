@@ -1,34 +1,4 @@
 module MagicError
-  ALL_ERRORS = SOCKET_ERRORS + LOGIN_ERRORS + SEND_ERRORS + RECIEVE_ERRORS
-
-
-  SOCKET_ERRORS = [SocketBrokenPipe,
-                   SocketConnectionRefused,
-                   SocketConnectionReset,
-                   SocketNoRoute]
-
-  LOGIN_ERRORS = [LoginConnectionRefused, 
-                  LoginEOF, 
-                  LoginFailure, 
-                  LoginNoRoute, 
-                  LoginTimeout, 
-                  LoginBrokenPipe,
-                  LoginConnectionReset]
-
-  SEND_ERRORS = [SendConnectionRefused, 
-                 SendEOF, 
-                 SendNoRoute, 
-                 SendTimeout, 
-                 SendBrokenPipe,
-                 SendConnectionReset]
-                 
-  RECIEVE_ERRORS = [RecieveConnectionRefused, 
-                    RecieveEOF, 
-                    RecieveNoRoute, 
-                    RecieveTimeout, 
-                    RecieveBrokenPipe,
-                    RecieveConnectionReset]
-
   RESTART_ERRORS = [SocketBrokenPipe,
                     SocketConnectionRefused,
                     SocketConnectionReset,
@@ -45,75 +15,93 @@ module MagicError
                     LoginConnectionReset, 
                     RecieveConnectionReset, 
                     SendConnectionReset]
-  class SocketConnectionRefused < Exception
-  end 
 
-  class SocketNoRoute < Exception
+  abstract class BaseException < Exception
   end
 
-  class SocketBrokenPipe < Exception
+  abstract class SocketException < BaseException
+  end
+
+  abstract class LoginException < BaseException
+  end
+
+  abstract class SendException < BaseException
+  end
+
+  abstract class RecieveException < BaseException
+  end
+
+
+
+  class SocketConnectionRefused < SocketException
+  end 
+
+  class SocketNoRoute < SocketException
+  end
+
+  class SocketBrokenPipe < SocketException
   end
     
-  class SocketConnectionReset < Exception
+  class SocketConnectionReset < SocketException
   end
 
 
-  class LoginTimeout < Exception
+  class LoginTimeout < LoginException
   end
 
-  class LoginEOF < Exception
+  class LoginEOF < LoginException
   end
 
-  class LoginFailure < Exception
+  class LoginFailure < LoginException
   end
 
-  class LoginConnectionRefused < Exception
+  class LoginConnectionRefused < LoginException
   end
   
-  class LoginNoRoute < Exception
+  class LoginNoRoute < LoginException
   end
 
-  class LoginBrokenPipe < Exception
+  class LoginBrokenPipe < LoginException
   end
 
-  class LoginConnectionReset < Exception
+  class LoginConnectionReset < LoginException
   end
 
   
-  class SendTimeout < Exception
+  class SendTimeout < SendException
   end
 
-  class SendEOF < Exception
+  class SendEOF < SendException
   end
 
-  class SendConnectionRefused < Exception
+  class SendConnectionRefused < SendException
   end 
 
-  class SendNoRoute < Exception
+  class SendNoRoute < SendException
   end
 
-  class SendBrokenPipe < Exception
+  class SendBrokenPipe < SendException
   end
     
-  class SendConnectionReset < Exception
+  class SendConnectionReset < SendException
   end
 
 
-  class RecieveTimeout < Exception
+  class RecieveTimeout < RecieveException
   end
 
-  class RecieveEOF < Exception
+  class RecieveEOF < RecieveException
   end
 
-  class RecieveConnectionRefused < Exception
+  class RecieveConnectionRefused < RecieveException
   end 
 
-  class RecieveNoRoute < Exception
+  class RecieveNoRoute < RecieveException
   end
 
-  class RecieveBrokenPipe < Exception
+  class RecieveBrokenPipe < RecieveException
   end
 
-  class RecieveConnectionReset < Exception
+  class RecieveConnectionReset < RecieveException
   end
 end

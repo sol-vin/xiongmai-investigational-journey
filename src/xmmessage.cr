@@ -1,4 +1,4 @@
-# Struct that contains the basic process for making a 
+# Class that contains the basic process for making a message to/from the camera
 class XMMessage
   property type : UInt32
   property session_id : UInt32

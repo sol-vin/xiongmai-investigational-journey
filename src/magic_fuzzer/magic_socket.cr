@@ -1,10 +1,18 @@
 require "socket"
+require "uuid"
 
 require "./magic_error"
 
 class MagicSocket < TCPSocket
 
+  property uuid : UUID
+  property magic : UInt16 = 0_u16
+  property timeout : Time = Time.now
+  property state : String = "new"
+  property log : String = "Nothing yet!"
+
   def initialize(host, port)
+    @uuid = UUID.random
     begin
       super host, port
       self.read_timeout = 5
