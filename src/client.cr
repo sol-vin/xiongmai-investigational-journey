@@ -5,7 +5,7 @@ require "socket"
 
 class Client
   STATES =[:send_broadcast, 
-           :recieve_cameras, 
+           :receive_cameras, 
            :send_login,
            :wait_for_login_reply,
            :main_phase]

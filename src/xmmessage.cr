@@ -33,7 +33,7 @@ class XMMessage
     (magic >> 8).to_u8
   end
 
-  def make_header
+  def header
     header_io = IO::Memory.new
     header_io.write_bytes(type, IO::ByteFormat::LittleEndian)
     header_io.write_bytes(session_id, IO::ByteFormat::LittleEndian)
@@ -45,7 +45,7 @@ class XMMessage
     header_io.to_s
   end
 
-  def make : String
-    (make_header + self.message)
+  def to_s : String
+    (header + self.message)
   end
 end

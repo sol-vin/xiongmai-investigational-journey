@@ -179,7 +179,7 @@ module Fuzzer
 
       if login
         login_command = Command::Login.new(username: username, password: password)
-        socket << login_command.make
+        socket << login_command.to_s
 
         # Start consuming the header data
         type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
@@ -194,7 +194,7 @@ module Fuzzer
 
       if login_reply && (JSON.parse(login_reply)["Ret"] == 100 || JSON.parse(login_reply)["Ret"] == 106)
         begin
-          socket << command.make
+          socket << command.to_s
           type = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
           sessionid = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)
           unknown = socket.read_bytes(Int32, IO::ByteFormat::LittleEndian)

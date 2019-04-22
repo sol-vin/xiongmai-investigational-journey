@@ -1,20 +1,4 @@
 module MagicError
-  RESTART_ERRORS = [SocketBrokenPipe,
-                    SocketConnectionRefused,
-                    SocketConnectionReset,
-                    SocketNoRoute,
-                    LoginConnectionRefused, 
-                    RecieveConnectionRefused, 
-                    SendConnectionRefused, 
-                    LoginBrokenPipe, 
-                    RecieveBrokenPipe, 
-                    SendBrokenPipe, 
-                    LoginNoRoute, 
-                    RecieveNoRoute, 
-                    SendNoRoute, 
-                    LoginConnectionReset, 
-                    RecieveConnectionReset, 
-                    SendConnectionReset]
 
   abstract class BaseException < Exception
   end
@@ -28,7 +12,7 @@ module MagicError
   abstract class SendException < BaseException
   end
 
-  abstract class RecieveException < BaseException
+  abstract class ReceiveException < BaseException
   end
 
 
@@ -67,6 +51,9 @@ module MagicError
   class LoginConnectionReset < LoginException
   end
 
+  class LoginBadFileDescriptor < LoginException
+  end
+
   
   class SendTimeout < SendException
   end
@@ -86,22 +73,28 @@ module MagicError
   class SendConnectionReset < SendException
   end
 
-
-  class RecieveTimeout < RecieveException
+  class SendBadFileDescriptor < SendException
   end
 
-  class RecieveEOF < RecieveException
+
+  class ReceiveTimeout < ReceiveException
   end
 
-  class RecieveConnectionRefused < RecieveException
+  class ReceiveEOF < ReceiveException
+  end
+
+  class ReceiveConnectionRefused < ReceiveException
   end 
 
-  class RecieveNoRoute < RecieveException
+  class ReceiveNoRoute < ReceiveException
   end
 
-  class RecieveBrokenPipe < RecieveException
+  class ReceiveBrokenPipe < ReceiveException
   end
 
-  class RecieveConnectionReset < RecieveException
+  class ReceiveConnectionReset < ReceiveException
+  end
+
+  class ReceiveBadFileDescriptor < ReceiveException
   end
 end

@@ -36,8 +36,8 @@ class MagicSocket < TCPSocket
   def login(username, password)
     begin
       login_command = Command::Login.new(username: username, password: password)
-      self << login_command.make
-      reply = recieve_message
+      self << login_command.to_s
+      reply = receive_message
       begin
         unless [Command::Login::SUCCESS, Command::Login::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
           raise MagicError::LoginFailure.new
@@ -60,13 +60,15 @@ class MagicSocket < TCPSocket
         raise MagicError::LoginBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
         raise MagicError::LoginConnectionReset.new 
+      elsif e.to_s.includes? "Bad file descriptor"
+        raise MagicError::LoginBadFileDescriptor.new 
       else
         raise e
       end
     end
   end
 
-  def recieve_message : XMMessage
+  def receive_message : XMMessage
     begin
       m = XMMessage.new
       m.type = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
@@ -84,18 +86,20 @@ class MagicSocket < TCPSocket
 
       m
     rescue e : IO::EOFError
-      raise MagicError::RecieveEOF.new
+      raise MagicError::ReceiveEOF.new
     rescue e : IO::Timeout
-      raise MagicError::RecieveTimeout.new
+      raise MagicError::ReceiveTimeout.new
     rescue e
       if e.to_s.includes? "Connection refused"
-        raise MagicError::RecieveConnectionRefused.new
+        raise MagicError::ReceiveConnectionRefused.new
       elsif e.to_s.includes? "No route to host"
-        raise MagicError::RecieveNoRoute.new
+        raise MagicError::ReceiveNoRoute.new
       elsif e.to_s.includes? "Broken pipe"
-        raise MagicError::RecieveBrokenPipe.new
+        raise MagicError::ReceiveBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
-        raise MagicError::RecieveConnectionReset.new 
+        raise MagicError::ReceiveConnectionReset.new 
+      elsif e.to_s.includes? "Bad file descriptor"
+        raise MagicError::ReceiveBadFileDescriptor.new 
       else
         raise e
       end
@@ -104,7 +108,7 @@ class MagicSocket < TCPSocket
 
   def send_message(xmm : XMMessage)
     begin
-      self << xmm.make
+      self << xmm.to_s
     rescue e : IO::EOFError
       raise MagicError::SendEOF.new
     rescue e : IO::Timeout
@@ -118,6 +122,8 @@ class MagicSocket < TCPSocket
         raise MagicError::SendBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
         raise MagicError::SendConnectionReset.new 
+      elsif e.to_s.includes? "Bad file descriptor"
+        raise MagicError::SendBadFileDescriptor.new 
       else
         raise e
       end
