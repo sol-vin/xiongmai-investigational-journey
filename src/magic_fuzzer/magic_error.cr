@@ -1,18 +1,18 @@
 module MagicError
 
-  abstract class BaseException < Exception
+  abstract class MagicError::Exception < Exception
   end
 
-  abstract class SocketException < BaseException
+  abstract class SocketException < Exception
   end
 
-  abstract class LoginException < BaseException
+  abstract class LoginException < Exception
   end
 
-  abstract class SendException < BaseException
+  abstract class SendException < Exception
   end
 
-  abstract class ReceiveException < BaseException
+  abstract class ReceiveException < Exception
   end
 
 

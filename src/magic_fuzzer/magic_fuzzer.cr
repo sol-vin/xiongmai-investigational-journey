@@ -247,10 +247,12 @@ class MagicFuzzer(CommandClass)
     end
     #We finished, so let's clean up and send results
     
+    @socket_pool[socket_uuid].log = "Finished!"
+
     @socket_pool[socket_uuid].state = "finishing"
     
     # replace the socket 
-    #request_replace_and_wait(socket_uuid)
+    request_replace_and_wait(socket_uuid)
 
 
 
@@ -396,7 +398,7 @@ class MagicFuzzer(CommandClass)
     puts "Total Results: #{@results.size}" 
     puts "Good: #{@results.count {|r| r.good?}}" 
     puts "Bad: #{@results.count {|r| r.bad?}}" 
-    sleep 0.2
+    sleep 0.1
   end
 
   def wait_until_done

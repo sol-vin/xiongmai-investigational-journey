@@ -15,7 +15,7 @@ class MagicSocket < TCPSocket
     @uuid = UUID.random
     begin
       super host, port
-      self.read_timeout = 5
+      self.read_timeout = 1
 
     rescue e
       if e.to_s.includes? "Connection refused"
