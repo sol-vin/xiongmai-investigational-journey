@@ -1,6 +1,6 @@
-module MagicError
+module XMError
 
-  abstract class MagicError::Exception < Exception
+  abstract class XMError::Exception < Exception
   end
 
   abstract class SocketException < Exception

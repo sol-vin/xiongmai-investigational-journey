@@ -8,6 +8,8 @@ class XMMessage
   property size : UInt32
   property message : String
 
+  property? use_custom_size : Bool = false
+
   #TODO: Allow for spoofing of size, for example changing size to say that its 32 bytes, when its 0 or something
   def self.from_s(string)
     io = IO::Memory.new string
@@ -40,7 +42,11 @@ class XMMessage
     header_io.write_bytes(unknown1, IO::ByteFormat::LittleEndian)
     header_io.write_bytes(unknown2, IO::ByteFormat::LittleEndian)
     header_io.write_bytes(magic, IO::ByteFormat::LittleEndian)
-    header_io.write_bytes(self.message.size, IO::ByteFormat::LittleEndian)
+    if use_custom_size?
+      header_io.write_bytes(size, IO::ByteFormat::LittleEndian)
+    else
+      header_io.write_bytes(message.size, IO::ByteFormat::LittleEndian)
+    end
 
     header_io.to_s
   end

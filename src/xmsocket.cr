@@ -1,9 +1,9 @@
 require "socket"
 require "uuid"
 
-require "./magic_error"
+require "./errors"
 
-class MagicSocket < TCPSocket
+class XMSocket < TCPSocket
 
   property uuid : UUID
   property magic : UInt16 = 0_u16
@@ -19,13 +19,13 @@ class MagicSocket < TCPSocket
 
     rescue e
       if e.to_s.includes? "Connection refused"
-        raise MagicError::SocketConnectionRefused.new
+        raise XMError::SocketConnectionRefused.new
       elsif e.to_s.includes? "No route to host"
-        raise MagicError::SocketNoRoute.new
+        raise XMError::SocketNoRoute.new
       elsif e.to_s.includes? "Broken pipe"
-        raise MagicError::SocketBrokenPipe.new
+        raise XMError::SocketBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
-        raise MagicError::SocketConnectionReset.new 
+        raise XMError::SocketConnectionReset.new 
       else
         raise e
       end
@@ -40,7 +40,7 @@ class MagicSocket < TCPSocket
       reply = receive_message
       begin
         unless [Command::Login::SUCCESS, Command::Login::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
-          raise MagicError::LoginFailure.new
+          raise XMError::LoginFailure.new
         end
       rescue e
         # Speicically filter out json "unexpected char/token" error
@@ -48,20 +48,20 @@ class MagicSocket < TCPSocket
       end
       Fiber.yield
     rescue e : IO::EOFError
-      raise MagicError::LoginEOF.new
+      raise XMError::LoginEOF.new
     rescue e : IO::Timeout
-      raise MagicError::LoginTimeout.new
+      raise XMError::LoginTimeout.new
     rescue e
       if e.to_s.includes? "Connection refused"
-        raise MagicError::LoginConnectionRefused.new
+        raise XMError::LoginConnectionRefused.new
       elsif e.to_s.includes? "No route to host"
-        raise MagicError::LoginNoRoute.new
+        raise XMError::LoginNoRoute.new
       elsif e.to_s.includes? "Broken pipe"
-        raise MagicError::LoginBrokenPipe.new
+        raise XMError::LoginBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
-        raise MagicError::LoginConnectionReset.new 
+        raise XMError::LoginConnectionReset.new 
       elsif e.to_s.includes? "Bad file descriptor"
-        raise MagicError::LoginBadFileDescriptor.new 
+        raise XMError::LoginBadFileDescriptor.new 
       else
         raise e
       end
@@ -86,20 +86,20 @@ class MagicSocket < TCPSocket
 
       m
     rescue e : IO::EOFError
-      raise MagicError::ReceiveEOF.new
+      raise XMError::ReceiveEOF.new
     rescue e : IO::Timeout
-      raise MagicError::ReceiveTimeout.new
+      raise XMError::ReceiveTimeout.new
     rescue e
       if e.to_s.includes? "Connection refused"
-        raise MagicError::ReceiveConnectionRefused.new
+        raise XMError::ReceiveConnectionRefused.new
       elsif e.to_s.includes? "No route to host"
-        raise MagicError::ReceiveNoRoute.new
+        raise XMError::ReceiveNoRoute.new
       elsif e.to_s.includes? "Broken pipe"
-        raise MagicError::ReceiveBrokenPipe.new
+        raise XMError::ReceiveBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
-        raise MagicError::ReceiveConnectionReset.new 
+        raise XMError::ReceiveConnectionReset.new 
       elsif e.to_s.includes? "Bad file descriptor"
-        raise MagicError::ReceiveBadFileDescriptor.new 
+        raise XMError::ReceiveBadFileDescriptor.new 
       else
         raise e
       end
@@ -110,20 +110,20 @@ class MagicSocket < TCPSocket
     begin
       self << xmm.to_s
     rescue e : IO::EOFError
-      raise MagicError::SendEOF.new
+      raise XMError::SendEOF.new
     rescue e : IO::Timeout
-      raise MagicError::SendTimeout.new
+      raise XMError::SendTimeout.new
     rescue e
       if e.to_s.includes? "Connection refused"
-        raise MagicError::SendConnectionRefused.new
+        raise XMError::SendConnectionRefused.new
       elsif e.to_s.includes? "No route to host"
-        raise MagicError::SendNoRoute.new
+        raise XMError::SendNoRoute.new
       elsif e.to_s.includes? "Broken pipe"
-        raise MagicError::SendBrokenPipe.new
+        raise XMError::SendBrokenPipe.new
       elsif e.to_s.includes? "Connection reset"
-        raise MagicError::SendConnectionReset.new 
+        raise XMError::SendConnectionReset.new 
       elsif e.to_s.includes? "Bad file descriptor"
-        raise MagicError::SendBadFileDescriptor.new 
+        raise XMError::SendBadFileDescriptor.new 
       else
         raise e
       end

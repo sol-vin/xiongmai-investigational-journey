@@ -2,11 +2,11 @@ require "json"
 require "uuid"
 
 require "../xmmessage"
+require "../errors"
+require "../xmsocket"
 require "../dahua_hash"
 require "../commands/*"
 
-require "./magic_error"
-require "./magic_socket"
 require "./magic_report"
 require "./magic_result"
 
@@ -44,8 +44,8 @@ class MagicFuzzer(CommandClass)
   @socket_wait_channels = {} of UUID => Channel(Nil)
 
   POOL_MAX = 32
-  # Hash of MagicSocket UUID to a MagicSocket
-  @socket_pool = {} of UUID => MagicSocket
+  # Hash of XMSocket UUID to a XMSocket
+  @socket_pool = {} of UUID => XMSocket
 
 
   @results = [] of MagicResult
@@ -80,14 +80,14 @@ class MagicFuzzer(CommandClass)
   end
 
   private def make_pool
-    @socket_pool = {} of UUID => MagicSocket
+    @socket_pool = {} of UUID => XMSocket
 
     POOL_MAX.times do |i|
       success = false
 
       until success
         begin
-          socket = MagicSocket.new(@target_ip, TCP_PORT)
+          socket = XMSocket.new(@target_ip, TCP_PORT)
           @socket_pool[socket.uuid] = socket
           @socket_pool[socket.uuid].magic = 0_u16
           @socket_pool[socket.uuid].state = "free"
@@ -95,7 +95,7 @@ class MagicFuzzer(CommandClass)
           @socket_wait_channels[socket.uuid] = Channel(Nil).new
           success = true
         rescue e
-          if e.is_a? MagicError::BaseException
+          if e.is_a? XMError::BaseException
             clear_screen
             puts "Waiting for camera to come online"
             puts e.inspect
@@ -109,7 +109,7 @@ class MagicFuzzer(CommandClass)
 
   private def replace_socket(sock_uuid : UUID)
     old_sock = @socket_pool[sock_uuid]
-    new_sock = MagicSocket.new(@target_ip, TCP_PORT)
+    new_sock = XMSocket.new(@target_ip, TCP_PORT)
     new_sock.uuid = sock_uuid
     # Replace the socket's uuid, magic, and timeout
     # This will prevent sockets from hanging due to replacement
@@ -203,7 +203,7 @@ class MagicFuzzer(CommandClass)
         result.reply = @socket_pool[socket_uuid].receive_message
         @socket_pool[socket_uuid].state = "received_message"
         success = true
-      rescue e : MagicError::BaseException
+      rescue e : XMError::BaseException
         # output the error to the socket's state
         @socket_pool[socket_uuid].log = "spawn socket: " + e.inspect
         # Check to see if it's an error we expect
@@ -216,7 +216,7 @@ class MagicFuzzer(CommandClass)
           request_replace_and_wait(socket_uuid)
 
           @socket_pool[socket_uuid].state = "replaced"
-        rescue err : MagicError::BaseException
+        rescue err : XMError::BaseException
           result.error = err.inspect
 
           # The camera has crashed, so we need to wait until it comes back up
@@ -276,7 +276,7 @@ class MagicFuzzer(CommandClass)
     end
 
     spawn do
-      run_magic(socket.as(MagicSocket).uuid, magic)
+      run_magic(socket.as(XMSocket).uuid, magic)
     end
   end
 

@@ -1,0 +1,81 @@
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef4294967296\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef4294967296\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\"O:\"PMonitor\",\"OPMo󠀾nitor\":{\"Action\":　\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMo·de\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"340282366920938463463374607431768211455xAbcdef1\"}"
+GOT: "{ \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Paramet,\"SessionID\":\"-281042098432816xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\" }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Namf\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Namf\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef18446744073709551616\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"1xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"1xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Chanʰnel\":2147483649,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":9223372036854775809,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef0\"}{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Chanʰnel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"Main\", \"TransMode\" : \"TCP\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"Caaaa%d%n&#000;\\u0000%#x\\n\\0$'+inf%n%s\\r\\n\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0 } }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "tor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TrinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":18446744073709551616,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 1.844674407370955e+19, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":340282366920938463463374607431768211456,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"-3966899354xAbcdef-201\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 3.402823669209384e+38, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"-3966899354xAbcdef-201\", \"authorizeStat\" : null }\n"
+Sending
+Sent: ""
+GOT: "{ \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef1\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef1\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Nameˑ\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Nameˑ\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"ActiSessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"ActiSessionID\" : \"0xAbcdef00\" }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef-2760\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef-2760\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main*,\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main*,\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main*,\" } }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPM󠀮onitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parame󠁞ter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPM󠀮onitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parame󠁞ter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"0xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"1xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"1xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"TCP\"}},\"SessionID\":\"0xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",M\"TransMode\":\"TCP\"}},\"SessionIDD\":\"170141183460469231731687303715884105727xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\"{C:l:e,a\"hn\"0n\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"9xAbcdef256\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\" }, \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\"\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"340282366920938463463374607431768211456xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\",\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"127xAbcdef00\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"OPMonitor\" : { \"Action\" : \"Claim\", \"Parameter\" : { \"Channel\" : 0, \"CombinMode\" : \"NONE\", \"StreamType\" : \"Main\", \"TransMode\" : \"TCP\" } }, \"Ret\" : 103, \"SessionID\" : \"127xAbcdef00\", \"authorizeStat\" : null }\n"
+Sending
+Sent: "{\"Name\":\"OPMonitor\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":0,\"CombinMode\":\"NONE\",\"StreamType\":\"Mode\":\"TC󠁷P\"}},\"SessionID\":\"0xAbcdef0󠁸0\"}"
+GOT: "{ \"Name\" : \"OPMonitor\", \"Ret\" : 103, \"authorizeStat\" : null }\n"
+Sending
+Sent: ""
+ERROR: #<MagicError::ReceiveEOF:>

