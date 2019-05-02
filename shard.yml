@@ -12,8 +12,8 @@ targets:
 
 
 dependencies:
-  clicr:
-    github: j8r/clicr
+  crowbar:
+    github: redcodefinal/crowbar
 
 crystal: 0.27.2
 

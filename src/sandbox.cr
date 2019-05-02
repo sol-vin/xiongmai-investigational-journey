@@ -3,6 +3,37 @@ require "socket"
 
 require "./magic_fuzzer"
 require "./denial_of_service"
+require "./xmfuzzer"
+
+xmm = Command::OPTalk.new
+fuzzer = XMFuzzer.new xmm.to_s
+fuzzer.run!
+sleep 20
+fuzzer.close
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # puts DenialOfService.use_message_quotes("192.168.11.109", command: Command::Unknown)
 
@@ -100,14 +131,14 @@ require "./denial_of_service"
 #   end
 # end
 
-xmm = Command::SystemInfo.new
-pp xmm.to_s
-socket = XMSocket.new("192.168.11.109", 34567)
-socket.login("admin", Dahua.digest("password"))
-socket.send_message xmm
-puts "SENT:"
-reply = socket.receive_message
-puts "GOT: #{reply.message}"
+# xmm = Command::SystemInfo.new
+# pp xmm.to_s
+# socket = XMSocket.new("192.168.11.109", 34567)
+# socket.login("admin", Dahua.digest("password"))
+# socket.send_message xmm
+# puts "SENT:"
+# reply = socket.receive_message
+# puts "GOT: #{reply.message}"
 
 #Brute.run("ORsEWe7l")
 

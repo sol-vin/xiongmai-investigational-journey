@@ -1,6 +1,10 @@
 version: 1.0
 shards:
-  clicr:
-    github: j8r/clicr
-    version: 0.5.1
+  crowbar:
+    github: redcodefinal/crowbar
+    commit: d869a4ec60998ec8fc481172b2c48b8a81da221f
+
+  perlin_noise:
+    github: redcodefinal/perlin_noise
+    commit: 634a2f0329e142df2f72b84f6cee610851c75b8f
 
