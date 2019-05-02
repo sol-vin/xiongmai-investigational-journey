@@ -4,67 +4,110 @@ require "socket"
 require "./magic_fuzzer"
 require "./denial_of_service"
 
-puts DenialOfService.use_size_int("192.168.11.109", command: Command::Unknown)
+# puts DenialOfService.use_message_quotes("192.168.11.109", command: Command::Unknown)
 
-
-# File.open("./logs/test.log", "w+") do |file|
-#   m = MagicFuzzer(Command::SystemInfo).new(
-#     magic: (0x0000..0x1000),
-#     username: "admin",
-#     password: "password",
-#     output: file
-#     )
-#   m.run
-#   m.wait_until_done
-#   m.report
-#   m.close
+# command_names = File.read("./rsrc/lists/list_of_commands.txt").split("\n")
+# command_names.each do |command_name|
+#   unless command_name.split("")[0] == "#"
+#     File.open("./logs/temp/#{command_name.downcase}.log", "w+") do |file|
+#       xmm = XMMessage.new
+#       xmm.message = JSON.build do |json|
+#         json.object do
+#           json.field "Name", "#{command_name}"
+#           json.field "SessionID", "0x00000000"
+#         end
+#       end
+#       m = MagicFuzzer.new(
+#         magic: (0x0000..0x1000),
+#         username: "admin",
+#         password: "password",
+#         output: file,
+#         template: xmm
+#         )
+#       m.run
+#       m.wait_until_done
+#       m.report
+#       m.close
+#     end
+#   end
 # end
 
-# File.open("./rsrc/get_safety_ability.txt", "w+") do |file|
-#   file.print Command::GetSafetyAbility.new(session_id: 0x00000000_u32).message
+
+# commands_text = File.read("rsrc/lists/list_of_commands.txt")
+# File.open("rsrc/lists/list_of_commands_unique.txt", "w+") do |out_file|
+#   unique = {} of UInt64 => String
+#   commands_text.split("\n").each do |line|
+#     unique[line.hash] = line
+#   end
+
+#   out_file.puts unique.values.join("\n")
 # end
 
-# File.open("./logs/radamsa/get_safety_ability.log", "w+") do |file|
+
+
+
+
+
+
+
+
+
+
+
+
+# File.open("./rsrc/unknown.txt", "w+") do |file|
+#   file.print Command::Unknown.new(session_id: 0x00000000_u32).message
+# end
+# File.open("./logs/radamsa/unknown.log", "w+") do |file|
 #   puts "Testing connection"
 #   socket = XMSocket.new("192.168.11.109", 34567)
-#   xmm = Command::GetSafetyAbility.new
+#   xmm = Command::Unknown.new
 #   socket.send_message xmm
 #   puts "SENT: #{xmm.message}"
-#   reply = socket.receive_message
-#   puts "GOT: #{reply.message}"
+#   reply1 = socket.receive_message
+#   puts "GOT: #{reply1.message}"
 
-#   1000.times do |x|
+#   counter = 0
+#   1000000.times do |x|
+#     counter += 1
+#     print '.' if counter % 100 == 0
+#     print '\n' if counter % 10000 == 0
+#     xmm = Command::Unknown.new
 #     begin
 #       socket = XMSocket.new("192.168.11.109", 34567)
-#       xmm = Command::GetSafetyAbility.new
-#       xmm.message = `radamsa ./rsrc/get_safety_ability.txt` 
-#       file.puts "Sending"
+#       xmm.message = `radamsa ./rsrc/unknown.txt` 
 #       socket.send_message xmm
-#       file.puts "Sent: #{xmm.message.inspect}"
 #       reply = socket.receive_message
-#       file.puts "GOT: #{reply.message.inspect}"
+#       if reply.message != reply1.message
+#         file.puts "Sent: #{xmm.message.inspect}"
+#         file.puts "Got: #{reply.message.inspect}"
+#         print '!'
+#       end
 #     rescue e : XMError::SocketException
 #       puts "SOCKET DOWN! #{e.inspect}"
 #       raise e
 #     rescue e : XMError::Exception
-#       file.puts "ERROR: #{e.inspect}"
-#       puts "ERROR: #{e.inspect}"
+#       file.puts "Sent: #{xmm.message.inspect}"
+#       file.puts "ERROR: #{e.inspect}" 
+#       print '!'
 #     rescue e
+#       file.puts "Sent: #{xmm.message.inspect}"
 #       file.puts "BAD ERROR: #{e.inspect}"
-#       puts "BAD ERROR: #{e.inspect}"
+#       print '!'
 #     ensure
 #       socket.close
 #     end
 #   end
 # end
 
-# xmm = Command::SystemInfo.new
-# socket = XMSocket.new("192.168.11.109", 34567)
-# socket.login("admin", Dahua.digest("password"))
-# socket.send_message xmm
-# puts "SENT:"
-# reply = socket.receive_message
-# puts "GOT: #{reply.message}"
+xmm = Command::SystemInfo.new
+pp xmm.to_s
+socket = XMSocket.new("192.168.11.109", 34567)
+socket.login("admin", Dahua.digest("password"))
+socket.send_message xmm
+puts "SENT:"
+reply = socket.receive_message
+puts "GOT: #{reply.message}"
 
 #Brute.run("ORsEWe7l")
 

@@ -54,4 +54,18 @@ class XMMessage
   def to_s : String
     (header + self.message)
   end
+
+  def clone : XMMessage
+    x = XMMessage.new
+    x.type = type
+    x.session_id = session_id
+    x.unknown1 = unknown1
+    x.unknown2 = unknown2
+    x.magic = magic
+    x.size = size
+    x.message = message
+
+    x.use_custom_size = use_custom_size?
+    x
+  end
 end

@@ -11,6 +11,7 @@ class MagicReport
     result_matches = {} of UInt64 => Array(UInt16)
 
     bad_results = results.select {|result| result.bad?}
+    bad_results.sort! {|a, b| a.message.magic <=> b.message.magic}
 
     results = results.reject {|result| result.bad?}
 

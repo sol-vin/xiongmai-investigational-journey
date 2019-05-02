@@ -60,7 +60,6 @@ class DenialOfService
     Command::GetSafetyAbility => false,
     Command::OPPlayback => false,
     Command::OPTalk => true,
-    
     Command::OPRecordSnap => true,
   }
 
@@ -90,7 +89,7 @@ class DenialOfService
     Command::GetSafetyAbility => true,
     Command::OPPlayback => true,
     Command::OPTalk => true,
-    Command::OPRecordSnap => true,    
+    Command::OPRecordSnap => true,
   }
   def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility)
     success = false
