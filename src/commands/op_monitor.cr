@@ -69,7 +69,7 @@ end
 # magic1: 0x82
 # magic2: 0x05
 #
-#{
+# {
 # 	"Name":	"OPMonitor",
 # 	"OPMonitor":	{
 # 		"Action":	"Claim",
@@ -85,3 +85,9 @@ end
 # }
 # GOT RET 103
 
+# This one crashes the system!
+# {
+# 	"Name":	"OPMonitor",
+# 	"OPMonitor": 0,
+# 	"SessionID":	"0x0000000007"
+# }

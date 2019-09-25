@@ -2,7 +2,7 @@ version: 1.0
 shards:
   crowbar:
     github: redcodefinal/crowbar
-    commit: d869a4ec60998ec8fc481172b2c48b8a81da221f
+    commit: 973ca853c2ec19be7155ec3c276744d31bb40787
 
   perlin_noise:
     github: redcodefinal/perlin_noise

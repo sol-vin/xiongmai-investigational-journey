@@ -103,3 +103,4 @@ Uart.PTZPreset
 Camera.FishEye
 PowerSocket.Authority
 NetWork.CloudStorage
+NetWork.NetCommon

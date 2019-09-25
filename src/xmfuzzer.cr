@@ -6,59 +6,58 @@ class XMFuzzer
   def initialize(template : String, @output = STDOUT, @seed = 1234)
     @crowbar = Crowbar.new(template, seed: @seed) do |cr|
       # Type selector
-      Crowbar::Selector::Range.new(cr, (0...3)) do |s|
-        s.weight = 0.01
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
-        end
-      end
+      # Crowbar::Selector::Range.new(cr, (0...3)) do |s|
+      #   s.weight = 0.01
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
+      #   end
+      # end
     
-      # SessionID selector
-      Crowbar::Selector::Range.new(cr, (4...7)) do |s|
-        s.weight = 0.01
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
-        end
-      end
+      # # SessionID selector
+      # Crowbar::Selector::Range.new(cr, (4...7)) do |s|
+      #   s.weight = 0.01
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
+      #   end
+      # end
     
-      # Unknown1 selector
-      Crowbar::Selector::Range.new(cr, (8...11)) do |s|
-        s.weight = 2.0
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
-        end
-      end
+      # # Unknown1 selector
+      # Crowbar::Selector::Range.new(cr, (8...11)) do |s|
+      #   s.weight = 2.0
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (4..4))
+      #   end
+      # end
     
-      # Unknown2 selector
-      Crowbar::Selector::Range.new(cr, (12...13)) do |s|
-        s.weight = 2.0
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (2..2))
-        end
-      end
+      # # Unknown2 selector
+      # Crowbar::Selector::Range.new(cr, (12...13)) do |s|
+      #   s.weight = 2.0
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (2..2))
+      #   end
+      # end
     
-      # Magic selector
-      Crowbar::Selector::Range.new(cr, (14...15)) do |s|
-        s.weight = 0.1
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (2..2))
-        end
-      end
+      # # Magic selector
+      # Crowbar::Selector::Range.new(cr, (14...15)) do |s|
+      #   s.weight = 0.1
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (2..2))
+      #   end
+      # end
     
+      # Turned off because of vulnerability in size uint32->int32
       # Size selector
-      Crowbar::Selector::Range.new(cr, (16...19)) do |s|
-        s.weight = 3.0
-        Crowbar::Mutator::Replacer.new(s) do |m|
-          Crowbar::Generator::Bytes.new(m, length_limit: (4..4))      
-        end
-      end
+      # Crowbar::Selector::Range.new(cr, (16...19)) do |s|
+      #   s.weight = 0.00001
+      #   Crowbar::Mutator::Replacer.new(s) do |m|
+      #     Crowbar::Generator::Bytes.new(m, length_limit: (4..4))      
+      #   end
+      # end
     
       # Message selector
       Crowbar::Selector::Header.new(cr, 20, invert: true) do |s|
         s.weight = 10.0
-        Crowbar::Mutator::Crowbar.new(s) do |cr|
-          cr.input = "{\"Name\":\"SystemInfo\",\"SessionID\":\"0x00000000\"}"
-          cr.seed = (:new_crowbar.hash%Int32::MAX).to_i32
+        Crowbar::Mutator::Crowbar.new(s, seed: (:new_crowbar.hash%Int32::MAX).to_i32) do |cr|
           # Selects quoted strings
           Crowbar::Selector::Regex.new(cr, Crowbar::Constants::Regex::IN_QUOTES) do |s|
             s.weight = 1.0
@@ -112,20 +111,19 @@ class XMFuzzer
             @socket.send_message xmm
             reply = @socket.receive_message
             @output.puts "Sent: "
-            PrettyPrint.format(xmm, @output, 80)
-
+            @output.puts xmm.to_s.inspect
             @output.puts "Got: "
-            PrettyPrint.format(reply, @output, 80)
+            @output.puts reply.to_s.inspect
           rescue e : XMError::SocketException
             puts "SOCKET DOWN! #{e.inspect}"
             print '!'
             raise e
           rescue e : XMError::Exception
-            @output.puts "Sent: #{xmm.inspect}"
+            @output.puts "Sent: #{xmm.to_s.inspect}"
             @output.puts "ERROR: #{e.inspect}" 
             print '!'
           rescue e
-            @output.puts "Sent: #{xmm.inspect}"
+            @output.puts "Sent: #{xmm.to_s.inspect}"
             @output.puts "BAD ERROR: #{e.inspect}"
             print '!'
             raise e

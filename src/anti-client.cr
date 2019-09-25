@@ -1,0 +1,2 @@
+class AntiClient < Client
+end
