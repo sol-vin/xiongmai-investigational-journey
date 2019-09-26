@@ -3,7 +3,7 @@ class Command::SystemFunction < XMMessage
     super(magic: magic, message:  JSON.build do |json|
       json.object do
         json.field "Name", "SystemFunction"
-        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
       end
     end)
   end

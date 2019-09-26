@@ -3,7 +3,7 @@ class Command::OPVersionList < XMMessage
     super(magic: magic, message:  JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionList"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(10, '0')}"
       end
     end)
   end
@@ -14,7 +14,7 @@ class Command::OPReqVersion < XMMessage
     super(magic: magic, message:  JSON.build do |json|
       json.object do
         json.field "Name", "OPReqVersion"
-        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(8, '0')}"
+        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(10, '0')}"
       end
     end)
   end
@@ -25,7 +25,7 @@ class Command::OPVersionReq < XMMessage
     super(magic: magic, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionReq"
-        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
       end
     end)
   end
@@ -36,7 +36,7 @@ class Command::OPVersionRep < XMMessage
     super(magic: magic, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "Name", "OPVersionRep"
-        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
       end
     end)
   end
