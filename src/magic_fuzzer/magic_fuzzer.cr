@@ -49,8 +49,8 @@ class MagicFuzzer
   @socket_wait_channels = {} of UUID => Channel(Nil)
 
   POOL_MAX = 16
-  # Hash of XMSocket UUID to a XMSocket
-  @socket_pool = {} of UUID => XMSocket
+  # Hash of XMSocketTCP UUID to a XMSocketTCP
+  @socket_pool : Hash(UUID, XMSocketTCP) = {} of UUID => XMSocketTCP 
 
 
   @results = [] of MagicResult
@@ -86,14 +86,15 @@ class MagicFuzzer
   end
 
   private def make_pool
-    @socket_pool = {} of UUID => XMSocket
+    @socket_pool = {} of UUID => XMSocketTCP
 
     POOL_MAX.times do |i|
       success = false
 
       until success
         begin
-          socket = XMSocket.new(@target_ip, TCP_PORT)
+          socket = XMSocketTCP.new(@target_ip, TCP_PORT)
+          # TODO: FIX THIS!!! You removed UUID and etc out of socket, it should have never been there!
           @socket_pool[socket.uuid] = socket
           @socket_pool[socket.uuid].magic = 0_u16
           @socket_pool[socket.uuid].state = "free"
@@ -116,7 +117,7 @@ class MagicFuzzer
 
   private def replace_socket(sock_uuid : UUID)
     old_sock = @socket_pool[sock_uuid]
-    new_sock = XMSocket.new(@target_ip, TCP_PORT)
+    new_sock = XMSocketTCP.new(@target_ip, TCP_PORT)
     new_sock.uuid = sock_uuid
     # Replace the socket's uuid, magic, and timeout
     # This will prevent sockets from hanging due to replacement
@@ -288,7 +289,7 @@ class MagicFuzzer
     end
 
     spawn do
-      run_magic(socket.as(XMSocket).uuid, magic)
+      run_magic(socket.as(XMSocketTCP).uuid, magic)
     end
   end
 

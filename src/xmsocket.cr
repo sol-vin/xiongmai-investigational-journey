@@ -3,40 +3,31 @@ require "uuid"
 
 require "./errors"
 
-class XMSocket < TCPSocket
+module XMSocket
+  property tags = {
+    uuid: UUID.random # TODO: REMOVE THIS!
+  }
 
-  property uuid : UUID
-  property magic : UInt16 = 0_u16
-  property timeout : Time = Time.now
-  property state : String = "new"
-  property log : String = "Nothing yet!"
+  getter target = Socket::IPAddress.new("0.0.0.0", 0)
 
-  def initialize(host, port)
-    @uuid = UUID.random
-    begin
-      super host, port
-      self.read_timeout = 1
-
-    rescue e
-      if e.to_s.includes? "Connection refused"
-        raise XMError::SocketConnectionRefused.new
-      elsif e.to_s.includes? "No route to host"
-        raise XMError::SocketNoRoute.new
-      elsif e.to_s.includes? "Broken pipe"
-        raise XMError::SocketBrokenPipe.new
-      elsif e.to_s.includes? "Connection reset"
-        raise XMError::SocketConnectionReset.new 
-      else
-        raise e
-      end
-    end
-
+  def set_target(socket_ip)
+    @target = socket_ip
   end
 
-  def login(username, password)
+  # Target a camera.
+  def set_target(ip : String, port = 0)
+    @target = Socket::IPAddress.new(ip, port)
+  end
+  
+  # Have we found at least one target yet?
+  def has_target?
+    @target.port != 0
+  end
+
+  def login(username = "admin", password = "password")
     begin
       login_command = Command::Login.new(username: username, password: password)
-      self << login_command.to_s
+      self.send_raw_message login_command.to_s
       reply = receive_message
       begin
         unless [Command::Login::SUCCESS, Command::Login::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
@@ -108,7 +99,7 @@ class XMSocket < TCPSocket
 
   def send_message(xmm : XMMessage)
     begin
-      self << xmm.to_s
+      self.send_raw_message xmm.to_s
     rescue e : IO::EOFError
       raise XMError::SendEOF.new
     rescue e : IO::Timeout
@@ -128,5 +119,63 @@ class XMSocket < TCPSocket
         raise e
       end
     end
+  end
+end
+
+class XMSocketTCP < TCPSocket
+  
+  include XMSocket
+
+  def initialize(host, port)
+    begin
+      super host, port
+      set_target(host, port)
+      self.read_timeout = 1
+    rescue e
+      if e.to_s.includes? "Connection refused"
+        raise XMError::SocketConnectionRefused.new
+      elsif e.to_s.includes? "No route to host"
+        raise XMError::SocketNoRoute.new
+      elsif e.to_s.includes? "Broken pipe"
+        raise XMError::SocketBrokenPipe.new
+      elsif e.to_s.includes? "Connection reset"
+        raise XMError::SocketConnectionReset.new 
+      else
+        raise e
+      end
+    end
+  end
+
+  def send_raw_message(message)
+    self << message.to_s
+  end
+end
+
+class XMSocketUDP < UDPSocket
+  
+  include XMSocket
+
+  def initialize(host, port)
+    begin
+      super(Family::INET)
+      set_target(host, port)
+      self.read_timeout = 1
+    rescue e
+      if e.to_s.includes? "Connection refused"
+        raise XMError::SocketConnectionRefused.new
+      elsif e.to_s.includes? "No route to host"
+        raise XMError::SocketNoRoute.new
+      elsif e.to_s.includes? "Broken pipe"
+        raise XMError::SocketBrokenPipe.new
+      elsif e.to_s.includes? "Connection reset"
+        raise XMError::SocketConnectionReset.new 
+      else
+        raise e
+      end
+    end
+  end
+
+  def send_raw_message(message)
+    self.send(message.to_s, target)
   end
 end

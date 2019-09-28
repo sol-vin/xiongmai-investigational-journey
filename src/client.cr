@@ -16,29 +16,10 @@ class Client
   UDP_PORT = 34568
   DB_PORT = 34568
 
-  DB = "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfa\x05\x00\x00\x00\x00"
   DB_CLIENT_DST = Socket::IPAddress.new("255.255.255.255", 34569)
   DB_CLIENT_SRC = Socket::IPAddress.new("0.0.0.0", 5008)
   
-  DBR = "\xff\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfb\x05" # Missing size at end!
   DBR_CLIENT_SRC = Socket::IPAddress.new("0.0.0.0", 34569)
-
-  DBR_FUNCTION_NAME = "NetWork.NetCommon"
-  DBR_CHANNEL_NUM = 1
-  DBR_DEVICE_TYPE = 1
-  DBR_HOSTNAME = "LocalHost"
-  DBR_HTTP_PORT = 80
-  DBR_MAX_BPS = 0
-  DBR_MON_MODE = "TCP"
-  DBR_NET_CONNECT_STATE = 0
-  DBR_OTHER_FUNCTION = "D=2019-01-01 00:00:00 V=c81a720f25e258c"
-  DBR_SSL_PORT = 8443
-  DBR_SUBMASK = "0x00FFFFFF"
-  DBR_TCP_MAX_CONN = 10
-  DBR_USE_HS_DOWNLOAD = false #Wtf does this do?
-  DBR_RET_SUCCESS = 100
-  DBR_SESSION_ID = "0x00000000"
-  
 
 
   UNBLOCK_FIBER_DATA = "e127e855-36d2-43f1-82c0-95f2ba5fe800"
@@ -55,9 +36,9 @@ class Client
   
   getter state : Symbol = STATES[0]
 
-  getter db_client_sock = UDPSocket.new
-  getter dbr_client_sock = UDPSocket.new
-  getter data_socket = TCPSocket.new
+  getter db_client_sock = XMSocketUDP.new("0.0.0.0", 0)
+  getter dbr_client_sock = XMSocketUDP.new("0.0.0.0", 0)
+  getter data_socket = XMSocketTCP.new("0.0.0.0", 0)
 
   getter? is_running = false
 
@@ -86,12 +67,6 @@ class Client
     @target.port != 0
   end
 
-
-
-
-
-
-
   def initialize
     setup
   end
@@ -110,18 +85,16 @@ class Client
   end
 
   def setup_ports
+    @data_sock = TCPSocket.new
     # Our socket for sending UDP data to the camera
     @data_sock.bind DATA_SOCK_SRC
     # Super important to enable this or else we can't broadcast to 255.255.255.255!
-    @data_sock.setsockopt LibC::SO_BROADCAST, 1
     # Our socket for sending discovery broadcasts.
     @db_client_sock = UDPSocket.new
     @db_client_sock.bind DB_SOCK_CLIENT_SRC
-    @db_client_sock.setsockopt LibC::SO_BROADCAST, 1
     # Our socket for sending discovery broadcasts.
     @dbr_client_sock = UDPSocket.new
     @dbr_client_sock.bind DBR_SOCK_CLIENT_SRC
-    @dbr_client_sock.setsockopt LibC::SO_BROADCAST, 1
   end
 
   def run
@@ -209,6 +182,9 @@ class Client
   end
 
   
-  def make_dbr(gateway, host_ip, mac_address, serial_number)
+  def send_db
+  end
+
+  def send_dbr(gateway, host_ip, mac_address, serial_number, submask)
   end
 end

