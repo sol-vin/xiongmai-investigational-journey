@@ -14,7 +14,7 @@ class Client
 
   TCP_PORT = 34567
   UDP_PORT = 34568
-  DB_PORT = 34568
+  DB_PORT = 34569
 
   DB_CLIENT_DST = Socket::IPAddress.new("255.255.255.255", 34569)
   DB_CLIENT_SRC = Socket::IPAddress.new("0.0.0.0", 5008)
@@ -180,7 +180,6 @@ class Client
 
   def tick
   end
-
   
   def send_db
   end

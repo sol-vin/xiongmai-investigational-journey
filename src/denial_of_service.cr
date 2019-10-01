@@ -2,8 +2,6 @@ require "./magic_fuzzer"
 
 class DenialOfService  
 
-
-
   def self.sandbox(target_ip, port = 34567, command = Command::Login)
     success = false
     begin
@@ -41,6 +39,8 @@ class DenialOfService
     xmm.size = 0x80000000
     xmm.message = ""
     xmm.use_custom_size = true
+
+
     if connection_type == :tcp
       begin
         socket = XMSocketTCP.new(target_ip, port)

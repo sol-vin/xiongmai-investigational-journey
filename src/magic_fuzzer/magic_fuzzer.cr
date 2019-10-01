@@ -74,10 +74,10 @@ class MagicFuzzer
   def initialize(@magic : Enumerable = (0x0000..0x08FF), 
           @output : IO = STDOUT,
           @username = "admin", 
-          @password = "",
+          @password = "password",
           hash_password = true,
           @login = true,
-          @target_ip = "192.168.11.109",
+          @target_ip = "192.168.1.99",
           @template = XMMessage.new)
 
     @password = Dahua.digest(@password) if hash_password
@@ -94,11 +94,11 @@ class MagicFuzzer
       until success
         begin
           socket = XMSocketTCP.new(@target_ip, TCP_PORT)
-          # TODO: FIX THIS!!! You removed UUID and etc out of socket, it should have never been there!
           @socket_pool[socket.uuid] = socket
-          @socket_pool[socket.uuid].magic = 0_u16
-          @socket_pool[socket.uuid].state = "free"
-          @socket_pool[socket.uuid].timeout = Time.now
+          @socket_pool[socket.uuid].tags[:magic] = 0_u16
+          @socket_pool[socket.uuid].tags[:state] = "free"
+          @socket_pool[socket.uuid].tags[:timeout] = Time.now
+          @socket_pool[socket.uuid].tags[:log] = ""
           @socket_wait_channels[socket.uuid] = Channel(Nil).new
           @socket_manage_channels[socket.uuid] = Channel(Nil).new
           success = true
@@ -122,10 +122,10 @@ class MagicFuzzer
     # Replace the socket's uuid, magic, and timeout
     # This will prevent sockets from hanging due to replacement
     @socket_pool[sock_uuid] = new_sock
-    @socket_pool[sock_uuid].magic = old_sock.magic
-    @socket_pool[sock_uuid].timeout = old_sock.timeout
-    @socket_pool[sock_uuid].log = "FRESHLY REPLACED! #{Time.now}"
-    @socket_pool[sock_uuid].state = "replaced"
+    @socket_pool[sock_uuid].tags[:magic] = old_sock.tags[:magic]
+    @socket_pool[sock_uuid].tags[:timeout] = old_sock.tags[:timeout]
+    @socket_pool[sock_uuid].tags[:log] = "FRESHLY REPLACED! #{Time.now}"
+    @socket_pool[sock_uuid].tags[:state] = "replaced"
     #close the old socket
     old_sock.close
 
@@ -133,22 +133,22 @@ class MagicFuzzer
   end
 
   private def request_replace_and_wait(uuid : UUID)
-    @socket_pool[uuid].state = "sending_manage_request"
+    @socket_pool[uuid].tags[:state] = "sending_manage_request"
     # Send the socket uuid that needs replacing
     @socket_manage_channels[uuid].send nil
 
-    @socket_pool[uuid].state = "receive_socket_clear"
+    @socket_pool[uuid].tags[:state] = "receive_socket_clear"
 
     # Wait until the channel clears our replacement.
     @socket_wait_channels[uuid].receive
 
-    @socket_pool[uuid].state = "received_socket_clear"
+    @socket_pool[uuid].tags[:state] = "received_socket_clear"
 
   end
 
   # returns the uuid of a free socket
   private def find_free_socket : (UUID | Nil)
-    socket = (@socket_pool.find { |uuid, socket| socket.state == "free"})
+    socket = (@socket_pool.find { |uuid, socket| socket.tags[:state] == "free"})
     if socket
       socket[0]
     else
@@ -178,11 +178,11 @@ class MagicFuzzer
   end
 
   private def run_magic(socket_uuid : UUID, magic : UInt16)
-    @socket_pool[socket_uuid].magic = magic
+    @socket_pool[socket_uuid].tags[:magic] = magic
 
     #for some reason have to for
-    @socket_pool[socket_uuid].state = "started"
-    @socket_pool[socket_uuid].timeout = Time.now
+    @socket_pool[socket_uuid].tags[:state] = "started"
+    @socket_pool[socket_uuid].tags[:timeout] = Time.now
 
     # Make counter variables
     success = false
@@ -196,64 +196,62 @@ class MagicFuzzer
     #   There is success or,
     #   Max number of retries reached or,
     #   Max timeout reached
-    until success || (Time.now - @socket_pool[socket_uuid].timeout).to_i > @max_timeout || !is_running?
+    until success || (Time.now - @socket_pool[socket_uuid].tags[:timeout].as(Time)).to_i > @max_timeout || !is_running?
       begin
         # Only login if we need to
         if @login
-          @socket_pool[socket_uuid].state = "logging_in"
+          @socket_pool[socket_uuid].tags[:state] = "logging_in"
           # login, raises an error if login failed
           @socket_pool[socket_uuid].login(@username, @password)
 
-          @socket_pool[socket_uuid].state = "logged_in"
+          @socket_pool[socket_uuid].tags[:state] = "logged_in"
         end
 
         # send message
         @socket_pool[socket_uuid].send_message result.message
 
-        @socket_pool[socket_uuid].state = "sent_message"
+        @socket_pool[socket_uuid].tags[:state] = "sent_message"
 
-        @socket_pool[socket_uuid].state = "recieving_message"
+        @socket_pool[socket_uuid].tags[:state] = "recieving_message"
 
         # receive reply
         result.reply = @socket_pool[socket_uuid].receive_message
-        @socket_pool[socket_uuid].state = "received_message"
+        @socket_pool[socket_uuid].tags[:state] = "received_message"
         success = true
       rescue e : XMError::Exception
         # output the error to the socket's state
-        @socket_pool[socket_uuid].log = "spawn socket: " + e.inspect + "   " + Time.now.second.to_s
+        @socket_pool[socket_uuid].tags[:log] = "spawn socket: " + e.inspect + "   " + Time.now.second.to_s
         # Check to see if it's an error we expect
-        @socket_pool[socket_uuid].state = "error"
+        @socket_pool[socket_uuid].tags[:state] = "error"
         result.error = e.inspect
 
         # Restart the socket, close, reopen, and replace it
         begin
-          @socket_pool[socket_uuid].state = "replacing"
+          @socket_pool[socket_uuid].tags[:state] = "replacing"
           request_replace_and_wait(socket_uuid)
-          @socket_pool[socket_uuid].state = "replaced"
+          @socket_pool[socket_uuid].tags[:state] = "replaced"
         rescue err : XMError::Exception
           result.error = err.inspect
-          puts "!!!!!!!!!!!!!!!!! 2222222222222"
           # The camera has crashed, so we need to wait until it comes back up
           # Move the socket time forward CAMERA_WAIT_TIME seconds, to prevent time out due to crash
           # The order of sockets is randomized to ensure that if a command is causing a disconnect, that some new 
           # sockets will still be able to get through and resolve potentially.
           random_wait_time = Time::Span.new(0, 0, rand(5) + 2)
-          @socket_pool[socket_uuid].timeout += random_wait_time
-          @socket_pool[socket_uuid].log = "SOCKET ERROR: SLEEPING #{random_wait_time} SECONDS"
-          @socket_pool[socket_uuid].state = "sleeping"
+          time = @socket_pool[socket_uuid].tags[:timeout].as(Time) + random_wait_time
+          @socket_pool[socket_uuid].tags[:timeout] = time
+          @socket_pool[socket_uuid].tags[:log] = "SOCKET ERROR: SLEEPING #{random_wait_time} SECONDS"
+          @socket_pool[socket_uuid].tags[:state] = "sleeping"
           sleep random_wait_time
         rescue err
           result.error = err.inspect
-          puts "!!!!!!!!!!!!!!!!! 111111111111111"
 
-          @socket_pool[socket_uuid].log = "replace_socket: " + err.inspect
+          @socket_pool[socket_uuid].tags[:log] = "replace_socket: " + err.inspect
           raise err
         end
       rescue e
         # Mark bad socket, need to figure out how to handle this gracefully
         result.error = e.inspect
-        puts "!!!!!!!!!!!!!!!!! 333333333333333333333333333"
-        @socket_pool[socket_uuid].log = "BAD ERROR!! " + e.inspect
+        @socket_pool[socket_uuid].tags[:log] = "BAD ERROR!! " + e.inspect
         
         raise e
       end
@@ -262,19 +260,19 @@ class MagicFuzzer
     end
     #We finished, so let's clean up and send results
     
-    @socket_pool[socket_uuid].log = "Finished!"
+    @socket_pool[socket_uuid].tags[:log] = "Finished!"
 
-    @socket_pool[socket_uuid].state = "finishing"
+    @socket_pool[socket_uuid].tags[:state] = "finishing"
 
     # replace the socket 
     request_replace_and_wait(socket_uuid)
 
-    @socket_pool[socket_uuid].state = "sending_result"
+    @socket_pool[socket_uuid].tags[:state] = "sending_result"
 
     # add to results
     @result_channel.send result
 
-    @socket_pool[socket_uuid].state = "free"
+    @socket_pool[socket_uuid].tags[:state] = "free"
   end
 
   # Starts a single socket job
@@ -329,7 +327,7 @@ class MagicFuzzer
       end
 
       # wait until we are done with all sockets, then mark state done
-      until @socket_pool.all? {|uuid, socket| socket.state == "free"}
+      until @socket_pool.all? {|uuid, socket| socket.tags[:state] == "free"}
         @main_state =  "waiting_to_finish"
         Fiber.yield
       end
@@ -403,15 +401,15 @@ class MagicFuzzer
   # Give HUD output
   private def hud_tick
     clear_screen
-    puts "Fuzzing #{Command}"
+    puts "Fuzzing #{@template.message}"
     puts "Time: #{Time.now - @start_time}"
     puts "Current: #{@current_magic-@magic.begin}/#{@magic.size} : #{@current_magic.to_s(16)}"
     puts "Total Completion: #{(((@current_magic-@magic.begin).to_f / @magic.size.to_f)*100).round(3)}%"
     puts "Waiting for magics: "
     # Sort the sockets by their magics, so we know which magics cause the most trouble
-    @socket_pool.values.sort{|a, b| a.magic <=> b.magic}.each do |socket|
+    @socket_pool.values.sort{|a, b| a.tags[:magic].as(UInt16) <=> b.tags[:magic].as(UInt16)}.each do |socket|
       if socket
-        puts "0x#{socket.magic.to_s(16).rjust(4, '0')} : #{socket.state.rjust(20, ' ')} : #{@socket_manager_states[socket.uuid]} : #{socket.log.rjust(50, ' ')} : #{socket.uuid.to_s.rjust(20, ' ')} : #{(Time.now - socket.timeout).to_s.rjust(20, ' ')}"
+        puts "0x#{socket.tags[:magic].as(UInt16).to_s(16).rjust(4, '0')} : #{socket.tags[:state].to_s.rjust(20, ' ')} : #{@socket_manager_states[socket.uuid]} : #{socket.tags[:log].to_s.rjust(50, ' ')} : #{socket.uuid.to_s.rjust(20, ' ')} : #{(Time.now - socket.tags[:timeout].as(Time)).to_s.rjust(20, ' ')}"
       end
     end
     puts
@@ -437,7 +435,7 @@ class MagicFuzzer
   private def tick
     # unblock any channels in case they get stuck
     @socket_pool.each do |uuid, socket|
-      if @socket_manager_states[uuid] == "waiting_for_signal" && socket.state == "receive_socket_clear"
+      if @socket_manager_states[uuid] == "waiting_for_signal" && socket.tags[:state] == "receive_socket_clear"
         @socket_wait_channels[uuid].send nil
       end
     end

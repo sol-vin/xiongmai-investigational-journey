@@ -4,9 +4,8 @@ require "uuid"
 require "./errors"
 
 module XMSocket
-  property tags = {
-    uuid: UUID.random # TODO: REMOVE THIS!
-  }
+  alias ALL =  (String | UInt16 | Time | Float32)
+  property tags : Hash(Symbol, ALL) = {} of Symbol => ALL
 
   getter target = Socket::IPAddress.new("0.0.0.0", 0)
 
@@ -26,11 +25,11 @@ module XMSocket
 
   def login(username = "admin", password = "password")
     begin
-      login_command = Command::Login.new(username: username, password: password)
+      login_command = Command::Login::Request.new(username: username, password: password)
       self.send_raw_message login_command.to_s
       reply = receive_message
       begin
-        unless [Command::Login::SUCCESS, Command::Login::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
+        unless [Command::Login::Request::SUCCESS, Command::Login::Request::UNKNOWN].includes? JSON.parse(reply.message)["Ret"]
           raise XMError::LoginFailure.new
         end
       rescue e
@@ -126,6 +125,8 @@ class XMSocketTCP < TCPSocket
   
   include XMSocket
 
+  property uuid : UUID = UUID.random
+
   def initialize(host, port)
     begin
       super host, port
@@ -154,6 +155,8 @@ end
 class XMSocketUDP < UDPSocket
   
   include XMSocket
+
+  property uuid : UUID = UUID.random
 
   def initialize(host, port)
     begin
