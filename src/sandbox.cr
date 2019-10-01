@@ -5,6 +5,9 @@ require "./magic_fuzzer/magic_fuzzer"
 require "./xm_magic_fuzzer"
 
 # XMMagicFuzzer.run
+
+
+## UP TESTER!
 sock_is_up = false
 
 until sock_is_up
@@ -35,6 +38,10 @@ until sock_is_up
   end
 end
 
-# xmm = Command::EncodeCapability::Request.new(session_id: 1_u32)
+
+# sock = XMSocketTCP.new("192.168.1.99", 34567)
+# sock.read_timeout = 5
+# sock.login("admin", Dahua.digest "password")
+# xmm = Command::Operation::Machine::Request.new(reboot: true)
 # sock.send_message xmm
 # puts sock.receive_message.message

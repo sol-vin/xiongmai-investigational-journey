@@ -1,4 +1,6 @@
-class Command::Ret
+# CREDIT: https://github.com/alexshpilkin/dvrip/blob/master/dvrip/message.py#L167
+
+module Command::Ret
   ALL = {
     ok:       {code: 100, success: true, msg: "OK"},
     error:    {code: 101, success: false, msg: "Unknown Error"},
