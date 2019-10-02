@@ -1,4 +1,4 @@
-require "./magic_fuzzer"
+require "./command_fuzzer"
 
 class DenialOfService  
 
@@ -107,6 +107,9 @@ class DenialOfService
     Command::OPRecordSnap => true,
     Command::Unknown => false,
   }
+
+  # Potentially the same problem as wrong type, need to further explore this possibility
+  # TODO: Try 0 or null instead!
   def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility)
     success = false
     begin

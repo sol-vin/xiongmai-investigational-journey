@@ -1,13 +1,13 @@
-# Besder Investigational Journey
+# XIongmai Investigational Journey
 
-This is just a placeholder right now until I post my article on 0x42424242.in
+http://0x42424242.in/xiongmai
 
 ## Installation
 
 ```yaml
 dependencies:
   cli:
-    github: redcodefinal/besder-investigational-journey
+    github: redcodefinal/xiongmai-investigational-journey
 ```
 
 ## Usage

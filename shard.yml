@@ -1,4 +1,4 @@
-name: client
+name: xiongmai-investigative-journey
 version: 0.1.0
 
 authors:
@@ -8,7 +8,7 @@ targets:
   sandbox:
     main: src/sandbox.cr
   magic_cli:
-    main: src/magic_fuzzer/magic_cli.cr
+    main: src/fuzzer/command/fuzzer.cr
 
 
 dependencies:

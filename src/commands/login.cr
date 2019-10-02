@@ -5,8 +5,8 @@ class Command::Login::Request < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03e8_u16, session_id = 0_u32, @username = "", @password = "")
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03e8_u16, session_id = 0_u32, @username = "", @password = "")
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "EncryptType", "MD5"
         json.field "LoginType", "DVRIP-Xm030"
@@ -22,8 +22,8 @@ class Command::Login::Response < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03e9_u16, session_id = 0_u32)
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03e9_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "AliveInterval", 20
         json.field "ChannelNum", 1
@@ -40,8 +40,8 @@ class Command::Login::NoPasswordRequest < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03e8_u16, session_id = 0_u32, @username = "")
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03e8_u16, session_id = 0_u32, @username = "")
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "EncryptType", "MD5"
         json.field "LoginType", "DVRIP-Xm030"
@@ -56,8 +56,8 @@ class Command::Login::NoUsernameRequest < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03e8_u16, session_id = 0_u32, @password = "")
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03e8_u16, session_id = 0_u32, @password = "")
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "EncryptType", "MD5"
         json.field "LoginType", "DVRIP-Xm030"
@@ -72,8 +72,8 @@ class Command::Login::NoCredsRequest < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03e8_u16, session_id = 0_u32)
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03e8_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "EncryptType", "MD5"
         json.field "LoginType", "DVRIP-Xm030"
@@ -87,8 +87,8 @@ class Command::Logout::Request < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03ea_u16, session_id = 0_u32, @username = "", @password = "")
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03ea_u16, session_id = 0_u32, @username = "", @password = "")
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
         json.field "Name", ""
         json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
@@ -102,8 +102,8 @@ class Command::Logout::Reply < XMMessage
   UNKNOWN = 106
   FAILURE = 205
 
-  def initialize(magic = 0x03eb_u16, session_id = 0_u32, @username = "", @password = "")
-    super(magic: magic, session_id: session_id, message:  JSON.build do |json|
+  def initialize(command = 0x03eb_u16, session_id = 0_u32, @username = "", @password = "")
+    super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do
       end
     end)

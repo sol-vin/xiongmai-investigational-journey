@@ -4,7 +4,7 @@ class XMMessage
   property session_id : UInt32
   property unknown1 : UInt32
   property unknown2 : UInt16
-  property magic : UInt16
+  property command : UInt16
   property size : UInt32
   property message : String
 
@@ -18,7 +18,7 @@ class XMMessage
     m.session_id = io.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
     m.unknown1 = io.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
     m.unknown2 = io.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
-    m.magic = io.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
+    m.command = io.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
     m.size = io.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
     m.message = string[20..]
     if m.size != m.message.size
@@ -27,15 +27,15 @@ class XMMessage
     m
   end
 
-  def initialize(@type = 0x000001ff_u32, @session_id = 0_u32, @unknown1 = 0_u32, @unknown2 = 0_u16, @magic = 0_u16, @size = 0_u32, @message = "")
+  def initialize(@type = 0x000001ff_u32, @session_id = 0_u32, @unknown1 = 0_u32, @unknown2 = 0_u16, @command = 0_u16, @size = 0_u32, @message = "")
   end
 
-  def magic1 : UInt8
-    (magic & 0xFF).to_u8
+  def command1 : UInt8
+    (command & 0xFF).to_u8
   end
 
-  def magic2 : UInt8
-    (magic >> 8).to_u8
+  def command2 : UInt8
+    (command >> 8).to_u8
   end
 
   def header
@@ -44,7 +44,7 @@ class XMMessage
     header_io.write_bytes(session_id, IO::ByteFormat::LittleEndian)
     header_io.write_bytes(unknown1, IO::ByteFormat::LittleEndian)
     header_io.write_bytes(unknown2, IO::ByteFormat::LittleEndian)
-    header_io.write_bytes(magic, IO::ByteFormat::LittleEndian)
+    header_io.write_bytes(command, IO::ByteFormat::LittleEndian)
     if use_custom_size?
       header_io.write_bytes(size, IO::ByteFormat::LittleEndian)
     else
@@ -64,7 +64,7 @@ class XMMessage
     x.session_id = session_id
     x.unknown1 = unknown1
     x.unknown2 = unknown2
-    x.magic = magic
+    x.command = command
     x.size = size
     x.message = message
 

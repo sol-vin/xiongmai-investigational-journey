@@ -4,8 +4,10 @@ require "uuid"
 require "./errors"
 
 module XMSocket
-  alias ALL =  (String | UInt16 | Time | Float32)
-  property tags : Hash(Symbol, ALL) = {} of Symbol => ALL
+  TCP_PORT = 34567
+  UDP_PORT = 34569
+  #alias ALL =  (String | UInt16 | Time | Float32)
+  #property tags : Hash(Symbol, ALL) = {} of Symbol => ALL
 
   getter target = Socket::IPAddress.new("0.0.0.0", 0)
 
@@ -65,7 +67,7 @@ module XMSocket
       m.session_id = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
       m.unknown1 = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
       m.unknown2 = self.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
-      m.magic = self.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
+      m.command = self.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
       m.size = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
 
       unless m.size == 0
@@ -125,8 +127,6 @@ class XMSocketTCP < TCPSocket
   
   include XMSocket
 
-  property uuid : UUID = UUID.random
-
   def initialize(host, port)
     begin
       super host, port
@@ -155,8 +155,6 @@ end
 class XMSocketUDP < UDPSocket
   
   include XMSocket
-
-  property uuid : UUID = UUID.random
 
   def initialize(host, port)
     begin

@@ -3,8 +3,8 @@
 
 # If this command is sent directly to the camera, instead of sent to broadcast, it will still respond to broadcast.
 class Command::Network::NetCommon::Request < XMMessage
-  def initialize(magic = 0x05fa_u16, session_id = 0_u32)
-    super(type: 0x000000ff_u32, magic: magic, session_id: session_id, message: "")
+  def initialize(command = 0x05fa_u16, session_id = 0_u32)
+    super(type: 0x000000ff_u32, command: command, session_id: session_id, message: "")
   end
 end
 
@@ -23,8 +23,8 @@ class Command::Network::NetCommon::Response < XMMessage
   USE_HS_DOWNLOAD = false #TODO: Wtf does this do?
   SUCCESS = 100
   
-  def initialize(magic = 0x05fb_u16, session_id = 0_u32)
-    super(magic: magic, session_id: session_id, message: JSON.build do |json|
+  def initialize(command = 0x05fb_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
         json.field "Name", "NetWork.NetCommon"
         json.field "NetWork.NetCommon", json.object do |json|
