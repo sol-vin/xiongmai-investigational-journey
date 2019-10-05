@@ -108,3 +108,4 @@ PowerSocket.Authority
 NetWork.CloudStorage
 NetWork.NetCommon
 NetWork.NetOrder
+WorkState

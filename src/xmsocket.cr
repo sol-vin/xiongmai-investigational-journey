@@ -63,10 +63,14 @@ module XMSocket
   def receive_message : XMMessage
     begin
       m = XMMessage.new
-      m.type = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
+      m.type = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
+      m.version = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
+      m.reserved1 = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
+      m.reserved2 = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
       m.session_id = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
-      m.unknown1 = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
-      m.unknown2 = self.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
+      m.sequence = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
+      m.total_packets = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
+      m.current_packet = self.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
       m.command = self.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
       m.size = self.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
 

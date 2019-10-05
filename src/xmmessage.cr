@@ -28,7 +28,7 @@ class XMMessage
     m.current_packet = io.read_bytes(UInt8, IO::ByteFormat::LittleEndian)
     m.command = io.read_bytes(UInt16, IO::ByteFormat::LittleEndian)
     m.size = io.read_bytes(UInt32, IO::ByteFormat::LittleEndian)
-    m.message = string[20..]
+    m.message = string[20..] # Love you crystal infinite ranges <3
     if m.size != m.message.size
       m.use_custom_size = true
     end

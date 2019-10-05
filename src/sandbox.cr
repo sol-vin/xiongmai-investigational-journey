@@ -1,7 +1,20 @@
 require "json"
 require "socket"
 require "./dahua_hash"
+require "./xmsocket"
+require "./xmmessage"
 
+require "./commands/*"
+
+
+
+
+sock = XMSocketTCP.new("192.168.1.99", 34567)
+sock.read_timeout = 5
+sock.login("admin", Dahua.digest "password")
+xmm = Command::Operation::Monitor::Request.new
+sock.send_message xmm
+puts sock.receive_message.message
 
 
 
@@ -48,10 +61,3 @@ require "./dahua_hash"
 #   end
 # end
 
-
-# # sock = XMSocketTCP.new("192.168.1.99", 34567)
-# # sock.read_timeout = 5
-# # sock.login("admin", Dahua.digest "password")
-# # xmm = Command::Operation::Machine::Request.new(reboot: true)
-# # sock.send_message xmm
-# # puts sock.receive_message.message

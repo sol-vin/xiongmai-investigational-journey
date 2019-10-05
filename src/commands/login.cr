@@ -1,9 +1,29 @@
 require "../dahua_hash"
 
+module Command::Login
+  TYPES = [
+    "GUI",
+    "Console",
+    "DVRIP-Web",
+    "DVRIP-SNS",
+    "DVRIP-Mobile",
+    "DVRIP-Server",
+    "DVRIP-Upgrade",
+    "DVRIP-AutoSearch",
+    "DVRIP-NetKeyboard",
+    "DVRIP-Xm030"
+  ]
+
+  CRYPTO = ["None", "MD5", "3DES"]
+  DEVICE_TYPES = ["DVR", "DVS", "IPC"]
+end
+
 class Command::Login::Request < XMMessage
   SUCCESS = 100
   UNKNOWN = 106
   FAILURE = 205
+
+
 
   def initialize(command = 0x03e8_u16, session_id = 0_u32, @username = "", @password = "")
     super(command: command, session_id: session_id, message:  JSON.build do |json|
@@ -28,6 +48,8 @@ class Command::Login::Response < XMMessage
         json.field "AliveInterval", 20
         json.field "ChannelNum", 1
         json.field "DeviceType", "IPC"
+        # TODO: Test device id
+        # json.field "DeviceID", 123456
         json.field "Ret", 100
         json.field "SessionID", "0x00000000"
       end

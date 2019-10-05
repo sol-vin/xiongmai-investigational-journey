@@ -255,11 +255,19 @@ class Command::Operation::DefaultConfig::Request < XMMessage
     super(command: command, message: JSON.build do |json|
       json.object do
         json.field "Name", "OPDefaultConfig"
-        # json.field "OPDefaultConfig" do
-        #   json.object do
-        #     json.field "Action", "Reset"
-        #   end
-        # end
+        json.field "OPDefaultConfig" do
+          json.object do
+            json.field "Account", true
+            json.field "Alarm", true
+            json.field "CommPtz", true
+            json.field "Encode", true
+            json.field "General", true
+            json.field "NetCommon", true
+            json.field "NetServer", true
+            json.field "Preview", true
+            json.field "Record", true
+          end
+        end
         json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)
