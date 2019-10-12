@@ -1,10 +1,13 @@
-class Command::Operation::Monitor::Request < XMMessage
+module Command::Operation::Monitor
   COMBIN_MODES = ["CONNECT_ALL", "NONE"]
   ACTIONS      = ["Claim"]
   ACTION1S     = ["Start", "Stop", "Claim"]
   STREAM_TYPES = ["Main", "Extra1"]
   TRANS_MODES  = ["TCP"]
+end
 
+
+class Command::Operation::Monitor::Request < XMMessage
   def initialize(command = 0x0585_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
@@ -28,68 +31,17 @@ class Command::Operation::Monitor::Request < XMMessage
   end
 end
 
-# command1: 0x85
-# command2: 0x05
-#
-# }
-# 	"Name":	"OPMonitor",
-# 	"OPMonitor":	{
-# 		"Action":	"Claim",
-# 		"Parameter":	{
-# 			"Channel":	0,
-# 			"CombinMode":	"CONNECT_ALL",
-# 			"StreamType":	"Main",
-# 			"TransMode":	"TCP"
-# 		}
-# 	},
-# 	"SessionID":	"0x000001869f"
-# }
-# GOT RET 103
-
-# command1: 0x85
-# command2: 0x05
-#
-# {
-# 	"Name":	"OPMonitor",
-# 	"OPMonitor":	{
-# 		"Action":	"Claim",
-# 		"Action1":	"Start",
-# 		"Parameter":	{
-# 			"Channel":	0,
-# 			"CombinMode":	"NONE",
-# 			"StreamType":	"Extra1",
-# 			"TransMode":	"TCP"
-# 		}
-# 	},
-# 	"SessionID":	"0x0000000007"
-# }
-# GOT RET 100
-
-# command1: 0x82
-# command2: 0x05
-#
-# {
-# 	"Name":	"OPMonitor",
-# 	"OPMonitor":	{
-# 		"Action":	"Claim",
-# 		"Action1":	"Start",
-# 		"Parameter":	{
-# 			"Channel":	0,
-# 			"CombinMode":	"NONE",
-# 			"StreamType":	"Main",
-# 			"TransMode":	"TCP"
-# 		}
-# 	},
-# 	"SessionID":	"0x0000000007"
-# }
-# GOT RET 103
-
-# This one crashes the system!
-# {
-# 	"Name":	"OPMonitor",
-# 	"OPMonitor": 0,
-# 	"SessionID":	"0x0000000007"
-# }
+class Command::Operation::Monitor::Response < XMMessage
+  def initialize(command = 0x0586_u16, ret = 100, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPMonitor"
+        json.field "Ret", ret
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
 
 class Command::Operation::LogoSetting::Request < XMMessage
   def initialize(command = 0x0000_u16, session_id = 0_u32)
@@ -102,8 +54,31 @@ class Command::Operation::LogoSetting::Request < XMMessage
   end
 end
 
+
+class Command::Operation::LogoSetting::Response < XMMessage
+  def initialize(command = 0x0000_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPLogoSetting"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
 class Command::Operation::Playback::Request < XMMessage
   def initialize(command = 0x0590_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPPlayback"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::Playback::Response < XMMessage
+  def initialize(command = 0x0591_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
         json.field "Name", "OPPlayback"
@@ -129,7 +104,7 @@ end
 # "SessionID":    "0x000000001f"
 # }
 
-class Command::Operation::RecordSnap < XMMessage
+class Command::Operation::RecordSnap::Request < XMMessage
   def initialize(command = 0x07fc_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
@@ -140,8 +115,31 @@ class Command::Operation::RecordSnap < XMMessage
   end
 end
 
-class Command::Operation::OPTalk < XMMessage
+
+class Command::Operation::RecordSnap::Response < XMMessage
+  def initialize(command = 0x07fd_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPRecordSnap"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::Talk::Request < XMMessage
   def initialize(command = 0x059A_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPTalk"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::Talk::Response < XMMessage
+  def initialize(command = 0x059B_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
         json.field "Name", "OPTalk"
@@ -163,6 +161,19 @@ class Command::Operation::TimeQuery::Request < XMMessage
   end
 end
 
+class Command::Operation::TimeQuery::Request < XMMessage
+  # TODO:! ADD TIME
+  def initialize(command = 0x05AD_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPTimeQuery"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+# TODO: Fix this
 class Command::Operation::TimeSettingNoRTC::Request < XMMessage
   # TODO:! ADD TIME
   def initialize(command = 0x03ee_u16, session_id = 0_u32)
@@ -188,7 +199,29 @@ class Command::Operation::VersionList::Request < XMMessage
   end
 end
 
+class Command::Operation::VersionList::Response < XMMessage
+  def initialize(command = 0x0000_u16, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPVersionList"
+        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(10, '0')}"
+      end
+    end)
+  end
+end
+
 class Command::Operation::ReqVersion::Request < XMMessage
+  def initialize(command = 0x0000_u16, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPReqVersion"
+        json.field "SessionID", "0x#{@session_id.to_s(16).rjust(10, '0')}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::ReqVersion::Response < XMMessage
   def initialize(command = 0x0000_u16, @session_id = 0_u32)
     super(command: command, message: JSON.build do |json|
       json.object do
@@ -210,7 +243,29 @@ class Command::Operation::VersionReq::Request < XMMessage
   end
 end
 
+class Command::Operation::VersionReq::Response < XMMessage
+  def initialize(command = 0x0000_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPVersionReq"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
 class Command::Operation::VersionRep::Request < XMMessage
+  def initialize(command = 0x0000_u16, session_id = 0_u32)
+    super(command: command, session_id: session_id, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPVersionRep"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::VersionRep::Response < XMMessage
   def initialize(command = 0x0000_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message: JSON.build do |json|
       json.object do
@@ -287,6 +342,20 @@ class Command::Operation::SystemUpgrade::Request < XMMessage
   end
 end
 
+
+class Command::Operation::SystemUpgrade::Response < XMMessage
+  # "{ \"Name\" : \"OPSystemUpgrade\", \"OPSystemUpgrade\" : { \"Hardware\" : \"HI3516EV100_50H20L_S38\", \"LogoArea\" : { \"Begin\" : \"0x80770000\", \"End\" : \"0x80780000\" }, \"LogoPartType\" : \"\", \"Serial\" : \"\", \"Vendor\" : \"General\" }, \"Ret\" : 100, \"SessionID\" : \"0x0\" }\n"
+  #     Bytes: ["0x05f5"]
+  def initialize(command = 0x05f5_u16, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPSystemUpgrade"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+      end
+    end)
+  end
+end
+
 class Command::Operation::SystemUpgrade2::Request < XMMessage
   # "{ \"Name\" : \"OPSystemUpgrade\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\" }\n"
   #     Bytes: ["0x05f0"]
@@ -294,6 +363,44 @@ class Command::Operation::SystemUpgrade2::Request < XMMessage
     super(command: command, message: JSON.build do |json|
       json.object do
         json.field "Name", "OPSystemUpgrade"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::SystemUpgrade2::Response < XMMessage
+  # "{ \"Name\" : \"OPSystemUpgrade\", \"Ret\" : 103, \"SessionID\" : \"0x00000000\" }\n"
+  #     Bytes: ["0x05f0"]
+  def initialize(command = 0x05f0_u16, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPSystemUpgrade"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::NetAlarm::Request < XMMessage
+  # "{ \"Name\" : \"OPNetAlarm\", \"Ret\" : 100, \"SessionID\" : \"0x00000000\" }\n"
+  # Bytes: ["0x05e2"]
+  def initialize(command = 0x05e2_u16, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPNetAlarm"
+        json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
+      end
+    end)
+  end
+end
+
+class Command::Operation::NetAlarm::Response < XMMessage
+  def initialize(command = 0x05e3_u16, ret = 100, @session_id = 0_u32)
+    super(command: command, message: JSON.build do |json|
+      json.object do
+        json.field "Name", "OPNetAlarm"
+        json.field "Ret", ret
         json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
       end
     end)

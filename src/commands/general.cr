@@ -1,4 +1,3 @@
-
 class Command::General::Set::Request < XMMessage
   def initialize(command = 0x0410_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message:  JSON.build do |json|
@@ -43,7 +42,7 @@ class Command::General::Get::Response < XMMessage
   end
 end
 
-class Command::General::Get::Default:Request < XMMessage
+class Command::General::Get::Default::Request < XMMessage
   def initialize(command = 0x0414_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message:  JSON.build do |json|
       json.object do

@@ -1,6 +1,4 @@
-require "./command_fuzzer"
-
-class DenialOfService  
+class DoS  
 
   def self.sandbox(target_ip, port = 34567, command = Command::Login)
     success = false

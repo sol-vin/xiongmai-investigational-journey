@@ -5,16 +5,21 @@ require "./xmsocket"
 require "./xmmessage"
 
 require "./commands/*"
+require "./denial_of_service"
+
+DoS.use_size_int("192.168.1.10")
 
 
 
 
-sock = XMSocketTCP.new("192.168.1.99", 34567)
-sock.read_timeout = 5
-sock.login("admin", Dahua.digest "password")
-xmm = Command::Operation::Monitor::Request.new
-sock.send_message xmm
-puts sock.receive_message.message
+
+
+# sock = XMSocketTCP.new("192.168.1.99", 34567)
+# sock.read_timeout = 5
+# sock.login("admin", Dahua.digest "password")
+# xmm = Command::SystemInfo::Request.new
+# sock.send_message xmm
+# puts sock.receive_message.message
 
 
 

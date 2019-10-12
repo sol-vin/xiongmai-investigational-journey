@@ -2,7 +2,7 @@
 
 module Command::Ret
   ALL = {
-    ok:       {code: 100, success: true, msg: "OK"},
+    ok:       {code: 100, success: true,  msg: "OK"},
     error:    {code: 101, success: false, msg: "Unknown Error"},
     version:  {code: 102, success: false, msg: "Invalid Version"},
     request:  {code: 103, success: false, msg: "Invalid Request"},

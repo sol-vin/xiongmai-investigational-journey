@@ -308,28 +308,7 @@ end
 class Command::Alarm::PTZ::Get::Response < XMMessage
   def initialize(command = 0x0413_u16, session_id = 0_u32)
     super(command: command, session_id: session_id, message:  JSON.build do |json|
-      json.object doclass Command::EncodeCapability::Request < XMMessage
-      def initialize(command = 0x0550_u16, session_id = 0_u32)
-        super(command: command, session_id: session_id, message:  JSON.build do |json|
-          json.object do
-            json.field "Name", "EncodeCapability"
-            json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
-          end
-        end)
-      end
-    end
-    
-    class Command::EncodeCapability::Response < XMMessage
-      def initialize(command = 0x0551_u16, session_id = 0_u32)
-        super(command: command, session_id: session_id, message:  JSON.build do |json|
-          json.object do
-            json.field "Name", "EncodeCapability"
-            json.field "SessionID", "0x#{session_id.to_s(16).rjust(8, '0').capitalize}"
-          end
-        end)
-      end
-    end
-    
+      json.object do
         json.field "Name", "Alarm.PTZAlarmProtocol"
         json.field "SessionID", "0x#{session_id.to_s(16).rjust(10, '0').capitalize}"
       end

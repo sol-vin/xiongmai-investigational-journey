@@ -1,4 +1,5 @@
 # This module holds constants related to what command bytes sent what ret.
+# Rets with -1000 either gave no ret, or was a binary file
 module Command::RetReturns
   ALL = {
     # Command: Login
@@ -151,6 +152,7 @@ module Command::RetReturns
     # Command: OPMailTest
     # "{ \"Name\" : \"OPMailTest\", \"Ret\" : 101, \"SessionID\" : \"0x00000000\" }\n"
     0x0664 => [101],
+    # TODO: Investigate this piece of crap
     # "{ \"command\" : \"sync\"," (has chinese chars but my algo interprets them as binary)
     0x0666 => [-1000],
     # Command: OPNetSerach
@@ -185,7 +187,7 @@ module Command::RetReturns
     0x07d8 => [101],
     # Command: OPVersionRep
     # "{ \"Name\" : \"OPVersionRep\", \"OPVersionRep\" : { \"ChangeLog\" : \"\", \"Date\" : \"\", \"DevID\" : \"\", \"FileLevel\" : 0, \"FileName\" : \"\", \"FileSize\" : 6004268 }, \"Ret\" : 514, \"SessionID\" : \"0x0\" }\n"
-    # 514 - Upgrade Successful
+    # 514 - Upgrade failed
     0x07e0 => [514]
     # Returned 100 when given a name, returned 511 when given no name
     # 511 - Upgrade Started
@@ -212,13 +214,15 @@ module Command::RetReturns
     0x0830 => [102],
     0x0832 => [102],
     0x0848 => [100],
-    # Returns a binary file TODO: INVEXTIGATE THIS FUTHER
+    # Returns a binary file 
+    # TODO: INVESTIGATE THIS FUTHER
     0x084a => [-1000],
     # Command: DevInfo
     # "{ \"Name\" : \"DevInfo\", \"NetInfoNum\" : 7, \"OtherInfoNum\" : 11, \"Ret\" : 100, \"SessionID\" : \"0x00000000\", \"UmapInfoNum\" : 28 }\n"
     0x084e => [100],
     # 105 - Not Logged In?
     # Could be backdoor? This was reported not logged in WITH ADMIN ACCOUNT
+    # TODO: Check this out? Backdoor?
     0x0852 => [105],
   }
 end

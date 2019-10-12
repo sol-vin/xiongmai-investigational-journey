@@ -119,7 +119,7 @@ class Command::Logout::Request < XMMessage
   end
 end
 
-class Command::Logout::Reply < XMMessage
+class Command::Logout::Response < XMMessage
   SUCCESS = 100
   UNKNOWN = 106
   FAILURE = 205
