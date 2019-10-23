@@ -1,13 +1,13 @@
-require "json"
-require "socket"
-require "./dahua_hash"
-require "./xmsocket"
-require "./xmmessage"
+require "./requires"
 
-require "./commands/*"
-require "./denial_of_service"
+require "./fuzzer/command/gui"
 
-DoS.use_size_int("192.168.1.10")
+
+#Command::Fuzzer::Gui.run
+
+# mf = Command::FuzzerNew.new
+# mf.run
+# mf.wait
 
 
 

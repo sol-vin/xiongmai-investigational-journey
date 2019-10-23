@@ -4,7 +4,23 @@ shards:
     github: redcodefinal/crowbar
     commit: 973ca853c2ec19be7155ec3c276744d31bb40787
 
+  lime:
+    github: r00ster91/lime
+    commit: 878b01bee298df8e04bbe39455d118613e0b99ce
+
   perlin_noise:
     github: redcodefinal/perlin_noise
     commit: 634a2f0329e142df2f72b84f6cee610851c75b8f
+
+  stumpy_core:
+    github: stumpycr/stumpy_core
+    version: 1.9.1
+
+  stumpy_png:
+    github: stumpycr/stumpy_png
+    version: 4.5.2
+
+  terminimal:
+    github: aca-labs/terminimal
+    version: 1.1.0
 

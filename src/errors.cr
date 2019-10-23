@@ -1,6 +1,6 @@
 module XMError
 
-  abstract class XMError::Exception < Exception
+  abstract class Exception < ::Exception
   end
 
   abstract class SocketException < Exception

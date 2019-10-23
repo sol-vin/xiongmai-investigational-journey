@@ -6,7 +6,7 @@ require "./dahua_hash"
 require "./command"
 require "./commands/*"
 
-module Fuzzer
+module FuzzerOLD
   class LoginTimeout < Exception
   end
 

@@ -2,11 +2,11 @@ require "json"
 require "uuid"
 require "logger"
 
-require "../xmmessage"
-require "../errors"
-require "../xmsocket"
-require "../dahua_hash"
-require "../commands/*"
+require "../../xmmessage"
+require "../../errors"
+require "../../xmsocket"
+require "../../dahua_hash"
+require "../../commands/*"
 
 require "./magic_report"
 require "./magic_result"
@@ -71,7 +71,7 @@ class MagicFuzzer
 
   @current_magic = 0
 
-  def initialize(@magic : Enumerable = (0x0000..0x08FF), 
+  def initialize(@magic : Enumerable = (0x03e0..0x08FF), 
           @output : IO = STDOUT,
           @username = "admin", 
           @password = "password",

@@ -9,13 +9,13 @@ module Command::RetReturns
      # Return response with no Ret
     0x03ec => [-1000],
     # Command: KeepAlive
-    0x03ee => [100]
-    0x03f2 => [102]
+    0x03ee => [100],
+    0x03f2 => [102],
     # Storage Info
     # "{ \"Name\" : \"StorageInfo\", \"Ret\" : 100, \"SessionID\" : \"0x0\", \"StorageInfo\" : [ { \"PartNumber\" : 0, \"Partition\" : [ { \"DirverType\" : 0, \"IsCurrent\" : false, \"LogicSerialNo\" : 0, \"NewEndTime\" : \"0000-00-00 00:00:00\", \"NewStartTime\" : \"0000-00-00 00:00:00\", \"OldEndTime\" : \"0000-00-00 00:00:00\", \"OldStartTime\" : \"0000-00-00 00:00:00\", \"RemainSpace\" : \"0x00000000\", \"Status\" : 0, \"TotalSpace\" : \"0x00000000\", \"fsType\" : \"\" }, { \"DirverType\" : 0, \"IsCurrent\" : false, \"LogicSerialNo\" : 0, \"NewEndTime\" : \"0000-00-00 00:00:00\", \"NewStartTime\" : \"0000-00-00 00:00:00\", \"OldEndTime\" : \"0000-00-00 00:00:00\", \"OldStartTime\" : \"0000-00-00 00:00:00\", \"RemainSpace\" : \"0x00000000\", \"Status\" : 0, \"TotalSpace\" : \"0x00000000\", \"fsType\" : \"\" }, { \"DirverType\" : 0, \"IsCurrent\" : false, \"LogicSerialNo\" : 0, \"NewEndTime\" : \"0000-00-00 00:00:00\", \"NewStartTime\" : \"0000-00-00 00:00:00\", \"OldEndTime\" : \"0000-00-00 00:00:00\", \"OldStartTime\" : \"0000-00-00 00:00:00\", \"RemainSpace\" : \"0x00000000\", \"Status\" : 0, \"TotalSpace\" : \"0x00000000\", \"fsType\" : \"\" }, { \"DirverType\" : 0, \"IsCurrent\" : false, \"LogicSerialNo\" : 0, \"NewEndTime\" : \"0000-00-00 00:00:00\", \"NewStartTime\" : \"0000-00-00 00:00:00\", \"OldEndTime\" : \"0000-00-00 00:00:00\", \"OldStartTime\" : \"0000-00-00 00:00:00\", \"RemainSpace\" : \"0x00000000\", \"Status\" : 0, \"TotalSpace\" : \"0x00000000\", \"fsType\" : \"\" } ], \"PlysicalNo\" : 0 } ] }\n"
     # "{ \"Name\" : \"SystemInfo\", \"Ret\" : 100, \"SessionID\" : \"0x0\", \"SystemInfo\" : { \"AlarmInChannel\" : 1, \"AlarmOutChannel\" : 1, \"AudioInChannel\" : 1, \"BuildTime\" : \"2018-08-29 09:00:36\", \"CombineSwitch\" : 0, \"DeviceModel\" : \"\", \"DeviceRunTime\" : \"0x000028C4\", \"DeviceType\" : 0, \"DigChannel\" : 0, \"EncryptVersion\" : \"Unknown\", \"ExtraChannel\" : 0, \"HardWare\" : \"HI3516EV100_50H20L_S38\", \"HardWareVersion\" : \"Unknown\", \"SerialNo\" : \"41e6853ada5e9323\", \"SoftWareVersion\" : \"V4.02.R12.00035520.12012.047500.00200\", \"TalkInChannel\" : 1, \"TalkOutChannel\" : 1, \"UpdataTime\" : \"\", \"UpdataType\" : \"0x00000000\", \"VideoInChannel\" : 1, \"VideoOutChannel\" : 1 } }\n"
     # This specific one has a timeout issue, if requested without a command name, or the wrong one, it simply times out
-    0x03fc => [100]
+    0x03fc => [100],
 
 
 
@@ -188,7 +188,7 @@ module Command::RetReturns
     # Command: OPVersionRep
     # "{ \"Name\" : \"OPVersionRep\", \"OPVersionRep\" : { \"ChangeLog\" : \"\", \"Date\" : \"\", \"DevID\" : \"\", \"FileLevel\" : 0, \"FileName\" : \"\", \"FileSize\" : 6004268 }, \"Ret\" : 514, \"SessionID\" : \"0x0\" }\n"
     # 514 - Upgrade failed
-    0x07e0 => [514]
+    0x07e0 => [514],
     # Returned 100 when given a name, returned 511 when given no name
     # 511 - Upgrade Started
     0x07e2 => [100, 511],

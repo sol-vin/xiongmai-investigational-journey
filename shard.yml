@@ -14,7 +14,9 @@ targets:
 dependencies:
   crowbar:
     github: redcodefinal/crowbar
+  kemal:
+    github: kemalcr/kemal
 
-crystal: 0.27.2
+crystal: 0.31.1
 
 license: MIT
