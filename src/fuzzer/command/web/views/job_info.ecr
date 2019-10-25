@@ -1,0 +1,28 @@
+<div class="jumbotron text-center">
+  <h1> Info for <%= job.name %> </h1>
+  <p> Command::Fuzzer Web Interface </p>
+</div>
+
+<div class="container">
+  <% unique_results.values.each do |results| %>
+     <div class="form-group">
+       <textarea class="form-control" rows="3" id="comment">
+         <% if results[0].reply.as(XMMessage).message.valid_encoding? %>
+           <%= results[0].reply.as(XMMessage).message %>
+         <% else %>
+           BINARY FILE: <%= results[0].reply.as(XMMessage).message[0..50].dump %>
+         <% end %>
+       </textarea>
+     </div>
+     <div class="d-flex flex-wrap">
+       <% results.sort{|a,b| a.message.command <=> b.message.command}.each do |result| %>
+          <div class="p-2 border" style="width: 80pt;"">
+            <form action="/job/<%= job.uuid %>/result/<%= result.message.command %>" method="get">
+              <div class="p-2"><button type="submit" class="btn btn-secondary">0x<%= result.message.command.to_s(16).rjust(4, '0').upcase %></button></div>
+            </form>
+          </div>
+       <% end %>
+     </div>
+     <br>
+  <% end %>
+</div>

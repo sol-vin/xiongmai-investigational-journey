@@ -1,10 +1,39 @@
+<% if display_alert %>
+<div class="alert alert-dismissible alert-<%= alert_type %>">
+  <button type="button" class="close" data-dismiss="alert"><i class="fas fa-times-circle"></i></button>
+  <%= alert_message %>
+</div>
+<% end %>
+
+
+
 <div class="jumbotron text-center">
   <h1> Home </h1>
   <p> Command::Fuzzer Web Interface </p>
 </div>
 
-<div class="card">
-  <div class="card-body">Job #1234</div>
 
-  <div class="card-body">Basic card</div>
+<div class="container">
+
+<% jobs.each do |_, job|  %>
+  <!-- Renders each job card -->
+  <%= render "src/fuzzer/command/web/views/reuse/job_card/card.ecr" %>
+<% end  %>
+
+<!-- Padding for bar -->
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
 </div>
+
+<%= render "src/fuzzer/command/web/views/reuse/new_job_bar.ecr" %>
+
+
+

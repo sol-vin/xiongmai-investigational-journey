@@ -1,0 +1,13 @@
+<div class="jumbotron text-center">
+  <h1> Result </h1>
+  <p> Command::Fuzzer Web Interface </p>
+</div>
+<div class="container">
+<h3> Message: </h3>
+<% xmmessage = result.message.as(XMMessage) %>
+<%= render "src/fuzzer/command/web/views/reuse/xmmessage.ecr" %>
+<br>
+<h3> Reply: </h3>
+<% xmmessage = result.reply.as(XMMessage) %>
+<%= render "src/fuzzer/command/web/views/reuse/xmmessage.ecr" %>
+</div>

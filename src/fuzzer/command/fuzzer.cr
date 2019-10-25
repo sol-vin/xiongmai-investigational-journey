@@ -3,29 +3,29 @@ require "../../requires"
 require "./fuzz_xmsocket"
 require "./command_result"
 
-
 class Command::Fuzzer
   # Port for TCP communication
   TCP_PORT = 34567
   # Port for UDP communication
+  # TODO:  Enable UDP port comms
   UDP_PORT = 34568
-  
+
   LOG_FILE = File.open("./logs/xmfuzzer.log", "w+")
   LOG      = Logger.new LOG_FILE
 
   # Maximum amount of time
   MAX_TIMEOUT = 30
 
-  POOL_MAX = 16
+  POOL_MAX = 8
 
   @total_sockets_spawned = 0
   # Hash of XMSocketTCP UUID to a XMSocketTCP
-  @socket_pool : Hash(UUID, FuzzXMSocketTCP) = {} of UUID => FuzzXMSocketTCP
+  getter socket_pool : Hash(UUID, FuzzXMSocketTCP) = {} of UUID => FuzzXMSocketTCP
 
   # The channel that is used to communicate found results to their proper place
-  @result_channel : Channel(Command::Fuzzer::Result?) = Channel(Command::Fuzzer::Result?).new
+  @result_channel : Channel(Command::Fuzzer::Result) = Channel(Command::Fuzzer::Result).new
 
-  getter output_channel : Channel(Command::Fuzzer::Result) = Channel(Command::Fuzzer::Result).new
+  getter results = [] of Command::Fuzzer::Result
 
   # Template command to use
   getter template : XMMessage = XMMessage.new
@@ -35,8 +35,8 @@ class Command::Fuzzer
   getter state : Symbol = :stopped
   getter main_fiber_check_in : Time = Time.new(1970, 1, 1, 0, 0, 0)
 
-  getter reciever_state : Symbol = :stopped
-  getter reciever_fiber_check_in : Time = Time.new(1970, 1, 1, 0, 0, 0)
+  getter receiver_state : Symbol = :stopped
+  getter receiver_fiber_check_in : Time = Time.new(1970, 1, 1, 0, 0, 0)
 
   # TODO: Implement slow mode
   getter slow_mode_state = :stopped
@@ -45,7 +45,6 @@ class Command::Fuzzer
   getter current_command : UInt16 = 0_u16
   getter run_commands : UInt16 = 0_u16
 
-
   SESSION_REGEX = /,?\h?\"SessionID\"\h\:\h\"0x.{8}\"/
 
   # Camera's down time, 120 seconds.
@@ -53,18 +52,14 @@ class Command::Fuzzer
 
   COMMAND_LIST = "./rsrc/lists/list_of_commands.txt"
 
-  def initialize(@commands : Enumerable = (0x03e0..0x08FF),
+  def initialize(@commands : Enumerable = (0x03e0_u16..0x08FF_u16),
                  @username = "admin",
                  @password = "",
                  hash_password = true,
                  @login = true,
                  @target_ip = "192.168.1.10",
                  @template = XMMessage.new)
-
     @password = Dahua.digest(@password) if hash_password
-
-    # TODO: Can we move this?
-    _make_pool
   end
 
   # Is this service running?
@@ -82,12 +77,14 @@ class Command::Fuzzer
   # Run the fuzzer
   def run
     unless is_running?
-      @is_running = true
+      @state = :making_pool
+
+      _make_pool
+
       @start_time = Time.now
       @state = :started
-
       _spawn_main
-      _spawn_reciever
+      _spawn_receiver
       _spawn_socket_managers
     end
   end
@@ -100,9 +97,7 @@ class Command::Fuzzer
       socket.manage_channel.close
     end
     @result_channel.close
-    @output_channel.close
 
-    @is_running = false
     @state = :stopped
   end
 
@@ -165,6 +160,10 @@ class Command::Fuzzer
     new_socket.timeout = old_socket.timeout
     new_socket.state = :replaced
     new_socket.log = "REPLACED #{Time.now}"
+    new_socket.wait_channel.close
+    new_socket.manage_channel.close
+    new_socket.wait_channel = old_socket.wait_channel
+    new_socket.manage_channel = old_socket.manage_channel
 
     # close old and add new
     _add_socket_to_pool new_socket
@@ -172,16 +171,17 @@ class Command::Fuzzer
 
   # Requests a specific socket gets replaced by the socket manager
   private def _request_replace_and_wait(uuid : UUID)
-    @socket_pool[uuid].state = :sending_manage_request
+    @socket_pool[uuid].state = :sending_manage
     @socket_pool[uuid].manage_channel.send nil
-    @socket_pool[uuid].state = :recieve_wait_request
+    @socket_pool[uuid].state = :receive_wait
     @socket_pool[uuid].wait_channel.receive
+
     @socket_pool[uuid].state = :replaced
   end
 
   # Looks through the sockets and sees if any are free
   private def _find_free_socket : UUID?
-    socket = @socket_pool.find { |uuid, socket| socket.state == :free }
+    socket = @socket_pool.find { |uuid, socket| socket.state == :free || socket.state == :none }
     if socket
       socket[0]
     else
@@ -232,7 +232,7 @@ class Command::Fuzzer
         # Receive the command
         @socket_pool[uuid].state = :receiving
         result.reply = @socket_pool[uuid].receive_message
-        @socket_pool[uuid].state = :recieved
+        @socket_pool[uuid].state = :received
 
         success = true
       rescue e : XMError::Exception
@@ -319,8 +319,8 @@ class Command::Fuzzer
       #   _spawn_command(result.message.command)
       #   sleep 1
       # end
-      
-      until @socket_pool.values.all? {|socket| socket.state == :free}
+
+      until @socket_pool.values.all? { |socket| socket.state == :free }
         @state = :waiting_for_finish
         Fiber.yield
       end
@@ -330,49 +330,54 @@ class Command::Fuzzer
     end
   end
 
-  # Timestamp the last reciever run
+  # Timestamp the last receiver run
   private def _receiver_check_in
     @receiver_fiber_check_in = Time.now
   end
 
-  # Spawn the reciever fiber, which listens for new results and files them away
-  private def _spawn_reciever
+  # Spawn the receiver fiber, which listens for new results and files them away
+  private def _spawn_receiver
     spawn do
       @receiver_state = :started
       until @state == :stopped || !is_running?
         _receiver_check_in
         @receiver_state = :receiving
-        result = @result_channel.receive?
+        result = @result_channel.receive
         @receiver_state = :received
-        @output_channel.send result
+        @results << result
         Fiber.yield
       end
-      @reciever_state = :stopped
+      @receiver_state = :stopped
     end
   end
 
   # Spawn the socket manager fiber, which listens for a socket to request a new socket, then replaces it and frees the socket for a command to be sent
   private def _spawn_socket_managers
     @socket_pool.keys.each do |uuid|
-      @socket_pool[uuid].manage_state = :started
-      until !is_running? || @state == :stopped
-        success = false
-        until success || !is_running? || @state == :stopped
-          begin
-            @socket_pool[uuid].manage_state = :waiting_for_signal
-            @socket_pool[uuid].manage_channel.receive
-            @socket_pool[uuid].manage_state = :restarting
-            _replace_socket(uuid)
-            @socket_pool[uuid].manage_state = :notify
-            @socket_pool[uuid].wait_channel.send nil
-            @socket_pool[uuid].manage_state = :success
-            success = true
-          rescue e : Channel::ClosedError
-            # Do nothing
-          rescue e : XMError::Exception
-            @socket_pool[uuid].manage_state = :error
+      spawn do
+        @socket_pool[uuid].manage_state = :started
+        until !is_running?
+          success = false
+          until success || !is_running?
+            begin
+              @socket_pool[uuid].manage_state = :waiting
+              @socket_pool[uuid].manage_channel.receive
+              @socket_pool[uuid].manage_state = :restart
+              _replace_socket(uuid)
+              @socket_pool[uuid].manage_state = :notify
+              @socket_pool[uuid].wait_channel.send nil
+              @socket_pool[uuid].manage_state = :success
+              success = true
+            rescue e : Channel::ClosedError
+              # Do nothing
+            rescue e : XMError::Exception
+              @socket_pool[uuid].manage_state = :error
+            end
+            Fiber.yield
           end
+          Fiber.yield
         end
+        @socket_pool[uuid].manage_state = :done
       end
     end
   end

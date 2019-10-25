@@ -1,0 +1,72 @@
+<div class="card bg-primary text-white container-fluid fixed-bottom">
+<form class="form-inline" action="/job/new" method="post">
+  <div class="d-flex w-100">
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-tag"></i></span>
+        </div>
+        <input type="text" class="form-control" name="name" placeholder="Name">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+        </div>
+        <input type="text" class="form-control" name="target" placeholder="Target IP">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-ethernet"></i></span>
+        </div>
+        <input type="number" class="form-control" name="port" placeholder="Port" min="0" max="65535" value="34567">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+        </div>
+        <input type="text" class="form-control" name="username" placeholder="Username">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-key"></i></span>
+        </div>
+        <input type="text" class="form-control" name="password" placeholder="Password">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-sort-numeric-up"></i></span>
+        </div>
+        <input type="number" class="form-control" name="range_start" placeholder="Start" min="0" max="65535" value="992">
+      </div>
+    </div>
+
+    <div class="p-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-sort-numeric-down"></i></span>
+        </div>
+        <input type="number" class="form-control" name="range_end" placeholder="End" min="0" max="65535" value="4096">
+      </div>
+    </div>
+    
+    <div class="ml-auto p-2">
+      <button class="btn btn-success" type="submit"><i class="fas fa-plus"></i>Add a job</button>
+    </div>
+  </div>
+</form>
+</div>

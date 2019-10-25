@@ -1,0 +1,73 @@
+ <div class="container">
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-25">
+      Type
+      <span class="badge badge-primary badge-pill"><%= xmmessage.type %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.type.to_s(16).rjust(2, '0') %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center w-25">
+      Version
+      <span class="badge badge-primary badge-pill"><%= xmmessage.version %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.version.to_s(16).rjust(2, '0') %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center w-25">
+      Reserved1
+      <span class="badge badge-primary badge-pill"><%= xmmessage.reserved1 %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.reserved1.to_s(16).rjust(2, '0') %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center w-25">
+      Reserved2
+      <span class="badge badge-primary badge-pill"><%= xmmessage.reserved2 %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.reserved2.to_s(16).rjust(2, '0') %></span>
+    </li>
+  </ul>
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-100">
+      Session ID
+      <span class="badge badge-primary badge-pill"><%= xmmessage.session_id %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.session_id.to_s(16).rjust(8, '0') %></span>
+    </li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-100">
+      Sequence
+      <span class="badge badge-primary badge-pill"><%= xmmessage.sequence %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.sequence.to_s(16).rjust(8, '0') %></span>
+    </li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-50">
+      Total Packets
+      <span class="badge badge-primary badge-pill"><%= xmmessage.total_packets %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.total_packets.to_s(16).rjust(2, '0') %></span>
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center w-50">
+      Current Packet
+      <span class="badge badge-primary badge-pill"><%= xmmessage.current_packet %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.current_packet.to_s(16).rjust(2, '0') %></span>
+    </li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-100">
+      Command
+      <span class="badge badge-primary badge-pill"><%= xmmessage.command %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.command.to_s(16).rjust(4, '0') %></span>
+    </li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item d-flex justify-content-between align-items-center w-100">
+      Size
+      <span class="badge badge-primary badge-pill"><%= xmmessage.size %></span>
+      <span class="badge badge-success badge-pill">0x<%= xmmessage.size.to_s(16).rjust(8, '0') %></span>
+    </li>
+  </ul>
+
+  <div class="form-group">
+    <textarea class="form-control" rows="1" id="comment"><%= xmmessage.message %></textarea>
+  </div>
+</div>
