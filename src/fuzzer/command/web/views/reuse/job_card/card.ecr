@@ -45,7 +45,8 @@ setTimeout(tick, 100);
           <a href="#" data-toggle="tooltip" title="Creation Time">
             <i class="fas fa-plus text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
           </a>
-          &nbsp;&nbsp;<%= Time.now-job.create_time %>
+          <% span = (Time.now-job.create_time) %>
+          &nbsp;&nbsp;<%= span.hours.to_s.rjust(2, '0') %>:<%= span.minutes.to_s.rjust(2, '0') %>:<%= span.seconds.to_s.rjust(2, '0') %>
         </div>
 
         <% if job.fuzzer.is_running? %>
@@ -53,7 +54,21 @@ setTimeout(tick, 100);
           <a href="#" data-toggle="tooltip" title="Start Time">
             <i class="fas fa-play text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
           </a>
-          &nbsp;&nbsp;<%= Time.now-job.start_time %>
+          <% span = (Time.now-job.start_time) %>
+          &nbsp;&nbsp;<%= span.hours.to_s.rjust(2, '0') %>:<%= span.minutes.to_s.rjust(2, '0') %>:<%= span.seconds.to_s.rjust(2, '0') %>
+        </div>
+        <div class="p-2">
+          <a href="#" data-toggle="tooltip" title="Good Results">
+            <i class="fas fa-thumbs-up text-white"></i>
+          </a>
+          &nbsp;&nbsp;<%= job.fuzzer.results.select(&.good?).size %>
+        </div>
+
+        <div class="p-2">
+          <a href="#" data-toggle="tooltip" title="Bad Results">
+            <i class="fas fa-thumbs-down text-white"></i>
+          </a>
+          &nbsp;&nbsp;<%= job.fuzzer.results.select(&.bad?).size %>
         </div>
         <% end %>
       </div>
@@ -105,7 +120,7 @@ setTimeout(tick, 100);
               <div class="progress-bar bg-danger" style="width:<%= segment_length %>%"><%= socket.state %></div>
             <% elsif [:sending, :receiving, :received, :finished, :sending_result, :logging_in, :logged_in].includes? socket.state %>
               <div class="progress-bar bg-success" style="width:<%= segment_length %>%"><%= socket.state %></div>
-            <% elsif [:sending_manage_request, :receive_wait_request].includes? socket.state %>
+            <% elsif [:sending_manage_request, :receive_wait_request, :checking_down].includes? socket.state %>
               <div class="progress-bar bg-warning" style="width:<%= segment_length %>%"><%= socket.state %></div>
             <% elsif socket.state == :free %>
               <div class="progress-bar bg-info" style="width:<%= segment_length %>%"><%= socket.state %></div>              

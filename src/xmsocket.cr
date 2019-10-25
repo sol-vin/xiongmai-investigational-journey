@@ -131,6 +131,11 @@ class XMSocketTCP < TCPSocket
   
   include XMSocket
 
+  def initialize
+    super Socket::Family::INET, Socket::Type::STREAM,  Socket::Protocol::IP
+    self.read_timeout = 1
+  end
+
   def initialize(host, port)
     begin
       super host, port
@@ -149,6 +154,11 @@ class XMSocketTCP < TCPSocket
         raise e
       end
     end
+  end
+
+  def bind_target(host, port)
+    set_target(host, port)
+    self.bind host, port
   end
 
   def send_raw_message(message)

@@ -1,4 +1,5 @@
-class FuzzXMSocketTCP < XMSocketTCP
+class FuzzXMSocketTCP
+  property socket : XMSocketTCP = XMSocketTCP.new
   property uuid : UUID = UUID.random
   property state : Symbol = :none
   property log : String = ""

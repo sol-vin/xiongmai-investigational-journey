@@ -14,7 +14,6 @@ class XMMessage
 
   property? use_custom_size : Bool = false
 
-  #TODO: Allow for spoofing of size, for example changing size to say that its 32 bytes, when its 0 or something
   def self.from_s(string) : XMMessage
     io = IO::Memory.new string
     m = XMMessage.new

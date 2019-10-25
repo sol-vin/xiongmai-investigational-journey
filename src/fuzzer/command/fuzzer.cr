@@ -86,15 +86,16 @@ class Command::Fuzzer
       _spawn_main
       _spawn_receiver
       _spawn_socket_managers
+      _spawn_tick
     end
   end
 
   # Close all the sockets
   def close
-    @socket_pool.each do |uuid, socket|
-      socket.close
-      socket.wait_channel.close
-      socket.manage_channel.close
+    @socket_pool.each do |uuid, fuzz_socket|
+      fuzz_socket.socket.close
+      fuzz_socket.wait_channel.close
+      fuzz_socket.manage_channel.close
     end
     @result_channel.close
 
@@ -104,8 +105,8 @@ class Command::Fuzzer
   # Makes a pool of sockets, will close sockets that are already open if called while sockets are still open in the pool
   private def _make_pool(number = POOL_MAX)
     unless @socket_pool.empty?
-      @socket_pool.each do |uuid, socket|
-        socket.close
+      @socket_pool.each do |uuid, fuzz_socket|
+        fuzz_socket.socket.close
       end
     end
 
@@ -115,7 +116,10 @@ class Command::Fuzzer
       success = false
       until success
         begin
-          _add_socket_to_pool(_make_new_socket)
+          fuzz_socket = FuzzXMSocketTCP.new
+          fuzz_socket.socket = _make_new_socket
+          @socket_pool[fuzz_socket.uuid] = fuzz_socket
+          
           success = true
         rescue e
           if e.is_a? XMError::Exception
@@ -131,42 +135,20 @@ class Command::Fuzzer
   # Makes a new socket.
   # DO NOT USE WITHOUT PROPER LOCKING
   private def _make_new_socket
-    socket = FuzzXMSocketTCP.new(@target_ip, TCP_PORT)
+    socket = XMSocketTCP.new(@target_ip, TCP_PORT)
     @total_sockets_spawned += 1
     socket
-  end
-
-  # Adds a socket to the pool
-  # DO NOT USE WITHOUT PROPER LOCKING
-  private def _add_socket_to_pool(socket)
-    # Close socket if it's already a part of the pool
-    @socket_pool[socket.uuid].close if @socket_pool[socket.uuid]?
-    # Replace the closed socket
-    @socket_pool[socket.uuid] = socket
   end
 
   # Replaces a socket to the pool
   # DO NOT USE WITHOUT PROPER LOCKING
   private def _replace_socket(socket_uuid : UUID)
     # get the two sockets
-    old_socket = @socket_pool[socket_uuid]
-    new_socket = _make_new_socket
+    #@socket_pool[socket_uuid].socket.close
+    @socket_pool[socket_uuid].socket = _make_new_socket
 
-    # transfer uuid so they go to the same place
-    new_socket.uuid = old_socket.uuid
-
-    # Transfer all data
-    new_socket.command = old_socket.command
-    new_socket.timeout = old_socket.timeout
-    new_socket.state = :replaced
-    new_socket.log = "REPLACED #{Time.now}"
-    new_socket.wait_channel.close
-    new_socket.manage_channel.close
-    new_socket.wait_channel = old_socket.wait_channel
-    new_socket.manage_channel = old_socket.manage_channel
-
-    # close old and add new
-    _add_socket_to_pool new_socket
+    @socket_pool[socket_uuid].state = :replaced
+    @socket_pool[socket_uuid].log = "REPLACED #{Time.now}"
   end
 
   # Requests a specific socket gets replaced by the socket manager
@@ -222,16 +204,16 @@ class Command::Fuzzer
         # Attempt to login
         if @login
           @socket_pool[uuid].state = :logging_in
-          @socket_pool[uuid].login(@username, @password)
+          @socket_pool[uuid].socket.login(@username, @password)
           @socket_pool[uuid].state = :logged_in
         end
 
         # Send the command
         @socket_pool[uuid].state = :sending
-        @socket_pool[uuid].send_message result.message
+        @socket_pool[uuid].socket.send_message result.message
         # Receive the command
         @socket_pool[uuid].state = :receiving
-        result.reply = @socket_pool[uuid].receive_message
+        result.reply = @socket_pool[uuid].socket.receive_message
         @socket_pool[uuid].state = :received
 
         success = true
@@ -239,11 +221,16 @@ class Command::Fuzzer
         socket_is_down = false
         if e.is_a? XMError::ReceiveTimeout
           # TODO: ADD CHECK TO SEE IF CAMERA IS REALLY DOWN
+          @socket_pool[uuid].state = :checking_down
+          socket_is_down = !_ping
+
+          if !socket_is_down
+            result.error = e.inspect
+            success = true
+          end
         else
           socket_is_down = true
           @socket_pool[uuid].log = "spawn socket: #{e.inspect} #{Time.now}"
-          @socket_pool[uuid].state = :error
-          result.error = e.inspect
         end
         if socket_is_down
           begin
@@ -281,17 +268,17 @@ class Command::Fuzzer
   # TODO: Limit to one during slow mode
   # Makes a new fiber that hosts socket.
   private def _spawn_command(command : UInt16)
-    socket = nil
-    until socket
+    fuzz_socket = nil
+    until fuzz_socket
       _main_check_in
       @state = :finding_socket
-      socket_uuid = _find_free_socket
-      socket = @socket_pool[socket_uuid]?
+      fuzz_socket_uuid = _find_free_socket
+      fuzz_socket = @socket_pool[fuzz_socket_uuid]?
       Fiber.yield
     end
 
     spawn do
-      _run_command(socket.as(XMSocketTCP).uuid, command)
+      _run_command(fuzz_socket.as(FuzzXMSocketTCP).uuid, command)
     end
   end
 
@@ -320,7 +307,7 @@ class Command::Fuzzer
       #   sleep 1
       # end
 
-      until @socket_pool.values.all? { |socket| socket.state == :free }
+      until @socket_pool.values.all? { |fuzz_socket| fuzz_socket.state == :free }
         @state = :waiting_for_finish
         Fiber.yield
       end
@@ -379,6 +366,30 @@ class Command::Fuzzer
         end
         @socket_pool[uuid].manage_state = :done
       end
+    end
+  end
+
+
+  private def _spawn_tick
+    spawn do
+      while is_running?
+        _tick
+        sleep 5
+      end
+    end
+  end
+
+  # Give HUD output
+  private def _tick
+    # unblock any channels in case they get stuck
+    # TODO: Investigate why this needs to happen
+    @socket_pool.each do |uuid, fuzz_socket|
+      if fuzz_socket.manage_state == :waiting && fuzz_socket.state == :receive_wait
+        fuzz_socket.wait_channel.send nil
+      elsif fuzz_socket.manage_state == :notify && fuzz_socket.state == :sending_manage
+        fuzz_socket.manage_channel.receive
+      end
+      Fiber.yield
     end
   end
 end

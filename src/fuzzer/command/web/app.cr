@@ -10,6 +10,7 @@ job1.target = "192.168.1.10"
 job1.port = 34567
 job1.username = "admin"
 job1.password = ""
+job1.commands = (0x_u16..0x1000_u16)
 
 jobs[job1.uuid.to_s] = job1
 
