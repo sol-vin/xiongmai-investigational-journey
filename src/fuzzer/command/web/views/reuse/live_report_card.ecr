@@ -1,0 +1,45 @@
+<div class="row mt-5 w-100">
+  <div class="col-*-* w-100 container-fluid">
+    <div class="card bg-secondary text-white container-fluid">
+      <div class="card-header"><i class="fas fa-code-branch"></i>&nbsp;&nbsp;<%= report.name %></div>
+      <div class="card-body">
+        <div class="d-flex">
+          <div class="p-2">
+            <a href="#" data-toggle="tooltip" title="Creation Time">
+              <i class="fas fa-hourglass-start text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
+            </a>
+            <% span = report.date_created %>
+            &nbsp;&nbsp;<%= span.day.to_s.rjust(2, '0') %>/<%= span.month.to_s.rjust(2, '0') %>/<%= span.year.to_s.rjust(2, '0') %>&nbsp;&nbsp;@&nbsp;&nbsp;<%= span.hour.to_s.rjust(2, '0') %>:<%= span.minute.to_s.rjust(2, '0') %>:<%= span.second.to_s.rjust(2, '0') %>
+          </div>
+
+
+          <div class="p-2">
+            <a href="#" data-toggle="tooltip" title="Good Results">
+              <i class="fas fa-thumbs-up text-white"></i>
+            </a>
+            &nbsp;&nbsp;<%= report.results.select(&.good?).size %>
+          </div>
+
+          <div class="p-2">
+            <a href="#" data-toggle="tooltip" title="Bad Results">
+              <i class="fas fa-thumbs-down text-white"></i>
+            </a>
+            &nbsp;&nbsp;<%= report.results.select(&.bad?).size %>
+          </div>
+
+          <div class="p-2">
+            <a href="#" data-toggle="tooltip" title="Total Results">
+              <i class="fas fa-file text-white"></i>
+            </a>
+            &nbsp;&nbsp;<%= report.results.size %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <form action="/job/<%= report.uuid %>/save" method="get">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

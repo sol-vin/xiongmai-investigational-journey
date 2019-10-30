@@ -1,7 +1,9 @@
 require "../../requires"
 
 require "./fuzz_xmsocket"
+require "./command_report"
 require "./command_result"
+
 
 class Command::Fuzzer
   # Port for TCP communication
@@ -12,11 +14,6 @@ class Command::Fuzzer
 
   LOG_FILE = File.open("./logs/xmfuzzer.log", "w+")
   LOG      = Logger.new LOG_FILE
-
-  # Maximum amount of time
-  MAX_TIMEOUT = 30
-
-  POOL_MAX = 8
 
   @total_sockets_spawned = 0
   # Hash of XMSocketTCP UUID to a XMSocketTCP
@@ -44,6 +41,10 @@ class Command::Fuzzer
 
   getter current_command : UInt16 = 0_u16
   getter run_commands : UInt16 = 0_u16
+  getter commands = [] of UInt16
+
+  getter max_pool = 8
+  getter max_timeout = 60
 
   SESSION_REGEX = /,?\h?\"SessionID\"\h\:\h\"0x.{8}\"/
 
@@ -52,24 +53,26 @@ class Command::Fuzzer
 
   COMMAND_LIST = "./rsrc/lists/list_of_commands.txt"
 
-  def initialize(@commands : Enumerable = (0x03e0_u16..0x08FF_u16),
+  def initialize(@commands : Array(UInt16) = (0x03e0_u16..0x08FF_u16).to_a,
                  @username = "admin",
                  @password = "",
                  hash_password = true,
                  @login = true,
                  @target_ip = "192.168.1.10",
-                 @template = XMMessage.new)
+                 @template = XMMessage.new,
+                 @max_pool = 8,
+                 @max_timeout = 60)
     @password = Dahua.digest(@password) if hash_password
   end
 
   # Is this service running?
   def is_running?
-    state != :stopped
+    state != :stopped && state != :finished
   end
 
   # Block this fiber until the machine stops
   def wait
-    until @state == :stopped
+    until @state == :finished
       sleep 5
     end
   end
@@ -79,7 +82,7 @@ class Command::Fuzzer
     unless is_running?
       @state = :making_pool
 
-      _make_pool
+      _make_pool(@max_pool)
 
       @start_time = Time.now
       @state = :started
@@ -99,11 +102,11 @@ class Command::Fuzzer
     end
     @result_channel.close
 
-    @state = :stopped
+    @state = :finished
   end
 
   # Makes a pool of sockets, will close sockets that are already open if called while sockets are still open in the pool
-  private def _make_pool(number = POOL_MAX)
+  private def _make_pool(number)
     unless @socket_pool.empty?
       @socket_pool.each do |uuid, fuzz_socket|
         fuzz_socket.socket.close
@@ -143,8 +146,6 @@ class Command::Fuzzer
   # Replaces a socket to the pool
   # DO NOT USE WITHOUT PROPER LOCKING
   private def _replace_socket(socket_uuid : UUID)
-    # get the two sockets
-    #@socket_pool[socket_uuid].socket.close
     @socket_pool[socket_uuid].socket = _make_new_socket
 
     @socket_pool[socket_uuid].state = :replaced
@@ -199,7 +200,7 @@ class Command::Fuzzer
     result.message.command = command
 
     # Keep looping until we succeed or we hit our timeout for the command
-    until success || (Time.now - @socket_pool[uuid].timeout).to_i > MAX_TIMEOUT
+    until success || (Time.now - @socket_pool[uuid].timeout).to_i > @max_timeout
       begin
         # Attempt to login
         if @login
@@ -219,6 +220,7 @@ class Command::Fuzzer
         success = true
       rescue e : XMError::Exception
         socket_is_down = false
+        result.error = e.inspect
         if e.is_a? XMError::ReceiveTimeout
           # TODO: ADD CHECK TO SEE IF CAMERA IS REALLY DOWN
           @socket_pool[uuid].state = :checking_down
@@ -313,7 +315,6 @@ class Command::Fuzzer
       end
 
       close
-      @state = :stopped
     end
   end
 
@@ -326,7 +327,7 @@ class Command::Fuzzer
   private def _spawn_receiver
     spawn do
       @receiver_state = :started
-      until @state == :stopped || !is_running?
+      until @state == :finished || !is_running?
         _receiver_check_in
         @receiver_state = :receiving
         result = @result_channel.receive
@@ -334,7 +335,7 @@ class Command::Fuzzer
         @results << result
         Fiber.yield
       end
-      @receiver_state = :stopped
+      @receiver_state = :finished
     end
   end
 

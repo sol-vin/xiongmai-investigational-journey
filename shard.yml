@@ -7,8 +7,8 @@ authors:
 targets:
   sandbox:
     main: src/sandbox.cr
-  magic_cli:
-    main: src/fuzzer/command/fuzzer.cr
+  fuzzer_web_app:
+    main: src/fuzzer/command/web/app.cr
 
 
 dependencies:

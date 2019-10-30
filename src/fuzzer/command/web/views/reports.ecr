@@ -1,0 +1,10 @@
+<div class="container">
+  <h3> ACTIVE </h3>
+  <% live_reports.each do |report| %>
+    <%= render "src/fuzzer/command/web/views/reuse/live_report_card.ecr" %>
+  <% end %>
+  <h3> SAVED </h3>
+  <% reports.each do |report| %>
+    <%= render "src/fuzzer/command/web/views/reuse/report_card.ecr" %>
+  <% end %>
+</div>

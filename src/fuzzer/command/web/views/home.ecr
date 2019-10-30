@@ -1,3 +1,5 @@
+
+
 <% if display_alert %>
 <div class="alert alert-dismissible alert-<%= alert_type %>">
   <button type="button" class="close" data-dismiss="alert"><i class="fas fa-times-circle"></i></button>
@@ -17,7 +19,7 @@
 
 <% jobs.each do |_, job|  %>
   <!-- Renders each job card -->
-  <%= render "src/fuzzer/command/web/views/reuse/job_card/card.ecr" %>
+  <%= render "src/fuzzer/command/web/views/reuse/job_card.ecr" %>
 <% end  %>
 
 <!-- Padding for bar -->

@@ -1,6 +1,5 @@
 require "./requires"
 
-require "./fuzzer/command/gui"
 
 
 #Command::Fuzzer::Gui.run

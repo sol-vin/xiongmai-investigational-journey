@@ -1,0 +1,16 @@
+<div class="jumbotron text-center">
+  <h1> Results for <%= job.name %> </h1>
+  <p> Command::Fuzzer Web Interface </p>
+</div>
+<div class="container">
+  <div class="d-flex flex-wrap">
+    <% all_results.sort{|a,b| a.message.command <=> b.message.command}.each do |result| %>
+      <div class="p-2 border" style="width: 80pt;"">
+        <form action="/job/<%= job.uuid %>/result/<%= result.message.command %>" method="get">
+          <div class="p-2"><button type="submit" class="btn btn-secondary">0x<%= result.message.command.to_s(16).rjust(4, '0').upcase %></button></div>
+        </form>
+      </div>
+    <% end %>
+  </div>
+</div>
+

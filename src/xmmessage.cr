@@ -1,5 +1,7 @@
 # Class that contains the basic process for making a message to/from the camera
 class XMMessage
+  include JSON::Serializable
+  
   property type : UInt8
   property version : UInt8
   property reserved1 : UInt8

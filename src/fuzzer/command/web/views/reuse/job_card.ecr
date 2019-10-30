@@ -1,0 +1,277 @@
+<script>
+update = function() {
+  $('#job-<%= job.uuid %>').load('/ #job-<%= job.uuid %>');
+}
+tick = function() {
+  setInterval(update, 300)
+}
+setTimeout(tick, 100);
+</script>
+<!-- Choose which fuzzer to use -->
+<% fuzzer = job.fuzzer %>
+<% if job.started_bad? %>
+  <% fuzzer = job.bad_fuzzer %>
+<% end %>
+<!-- ID here allows for updating via jQuery -->
+<div class="row mt-5 w-100" id="job-<%= job.uuid %>">
+  <div class="col-*-* w-100 container-fluid">
+    <div class="card bg-secondary text-white container-fluid">
+      <div class="card-header"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;<%= job.name %></div>
+        <div class="card-body">
+          <div class="d-flex">
+
+            <div class="p-2">
+              <a href="#" data-toggle="tooltip" title="Target">
+                <i class="fas fa-crosshairs text-white"></i>
+              </a>
+              &nbsp;&nbsp;<%= job.target %>
+            </div>
+
+            <div class="p-2">
+              <a href="#" data-toggle="tooltip" title="Port">
+                <i class="fas fa-ethernet text-white"></i>
+              </a>
+              &nbsp;&nbsp;<%= job.port %>
+            </div>
+          
+            <div class="p-2">
+              <a href="#" data-toggle="tooltip" title="Command Range Start">
+                <i class="fas fa-sort-numeric-up text-white"></i>
+              </a>
+              &nbsp;&nbsp;<%= job.commands.begin %>
+            </div>
+
+            <div class="p-2">
+              <a href="#" data-toggle="tooltip" title="Command Range End">
+                <i class="fas fa-sort-numeric-down text-white"></i>
+              </a>
+              &nbsp;&nbsp;<%= job.commands.end %>
+            </div>
+
+            <div class="p-2">
+              <a href="#" data-toggle="tooltip" title="Command Range Total">
+                <i class="fas fa-hashtag text-white"></i>
+              </a>
+              &nbsp;&nbsp;<%= job.commands.size %>
+            </div>
+
+            <% if !job.started? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Creation Time">
+                  <i class="fas fa-hourglass-start text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
+                </a>
+                <% span = (Time.now-job.date_created) %>
+                &nbsp;&nbsp;<%= span.hours.to_s.rjust(2, '0') %>:<%= span.minutes.to_s.rjust(2, '0') %>:<%= span.seconds.to_s.rjust(2, '0') %>
+              </div>
+            <% end %>
+
+            <% if fuzzer.is_running? && !job.cancelled? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Start Time">
+                  <i class="fas fa-play text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
+                </a>
+                <% span = (Time.now-job.date_started) %>
+                &nbsp;&nbsp;<%= span.hours.to_s.rjust(2, '0') %>:<%= span.minutes.to_s.rjust(2, '0') %>:<%= span.seconds.to_s.rjust(2, '0') %>
+              </div>
+            <% end %>
+
+            <% if job.cancelled? || (!fuzzer.is_running? && job.started? && job.started_bad?) %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Finished Time">
+                  <i class="fas fa-hourglass-end text-white"></i>&nbsp;<i class="fas fa-stopwatch text-white"></i>
+                </a>
+                <% span = (job.date_finished-job.date_started) %>
+                &nbsp;&nbsp;<%= span.hours.to_s.rjust(2, '0') %>:<%= span.minutes.to_s.rjust(2, '0') %>:<%= span.seconds.to_s.rjust(2, '0') %>
+              </div>
+            <% end %>
+
+            <% if job.started? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Good Results">
+                  <i class="fas fa-thumbs-up text-white"></i>
+                </a>
+                &nbsp;&nbsp;<%= job.fuzzer.results.select(&.good?).size + job.bad_fuzzer.results.select(&.good?).size %>
+              </div>
+
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Bad Results">
+                  <i class="fas fa-thumbs-down text-white"></i>
+                </a>
+                &nbsp;&nbsp;<%= fuzzer.results.select(&.bad?).size %>
+              </div>
+
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Total Reports">
+                  <i class="fas fa-file text-white"></i>
+                </a>
+                &nbsp;&nbsp;<%= (job.fuzzer.results.reject(&.bad?) + job.bad_fuzzer.results).size %>
+              </div>
+            <% end %>
+
+            <% if !job.started? && !job.cancelled? && !job.started_bad? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Not Started Yet">
+                  <i class="fas fa-stopwatch text-white"></i>
+                </a>
+              </div>
+            <% elsif job.started? && !job.cancelled? && !job.started_bad? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Running Commands">
+                  <i class="fas fa-check text-white"></i>
+                </a>
+                &nbsp;&nbsp;0x<%= job.fuzzer.current_command.to_s(16).upcase.rjust(4, '0') %>
+              </div>
+            <% elsif job.started? && !job.cancelled? && job.started_bad? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Running Bad Commands">
+                  <i class="fas fa-check-double text-white"></i>
+                </a>
+                &nbsp;&nbsp;0x<%= job.bad_fuzzer.current_command.to_s(16).upcase.rjust(4, '0') %>
+              </div>
+            <% elsif job.cancelled? %>
+              <div class="p-2">
+                <a href="#" data-toggle="tooltip" title="Cancelled">
+                  <i class="fas fa-times text-white"></i>
+                </a>
+              </div>
+            <% end %>
+          </div>
+
+          <% if job.started? || job.cancelled? ||  job.started_bad? %>
+            <div class="progress" id="good_progress">
+                <% current_command_count = job.fuzzer.run_commands - job.fuzzer.results.select(&.bad?).size %>
+                <% bad_count = job.fuzzer.results.select(&.bad?).size %>
+                <% total_command_count = job.fuzzer.commands.size %>
+                <div class="progress-bar bg-primary" style="width:<%= (current_command_count.to_f/total_command_count.to_f * 100.0) %>%">
+                  <%= current_command_count %>/<%= total_command_count %>
+                </div> 
+
+                <div class="progress-bar bg-danger" style="width:<%= (bad_count.to_f/total_command_count.to_f * 100.0) %>%">
+                  <%= bad_count %>
+                </div> 
+
+            </div>
+          <% end %>
+
+          <% if job.started_bad? %>
+            <div class="progress" id="bad_progress">
+              <% current_command_count = job.bad_fuzzer.run_commands %>
+              <% total_command_count = job.bad_fuzzer.commands.size %>
+              <div class="progress-bar bg-danger" style="width:<%= (current_command_count.to_f/total_command_count.to_f * 100).to_i %>%"><%= current_command_count %>/<%= total_command_count %></div>           
+            </div>
+          <% end %>
+
+
+          <div class="progress" id="main_state">
+            <% if job.cancelled? %>
+              <div class="progress-bar bg-danger" style="width:100%">Cancelled</div> 
+            <% else %>
+              <% if fuzzer.state == :stopped %>
+                <div class="progress-bar bg-danger" style="width:50%">Stopped</div> 
+              <% elsif fuzzer.state == :started %>
+                <div class="progress-bar bg-success" style="width:50%">Started</div> 
+              <% elsif fuzzer.state == :finished %>
+                <div class="progress-bar bg-success" style="width:50%">Finished</div> 
+              <% elsif fuzzer.state == :finding_socket %>
+                <div class="progress-bar bg-warning" style="width:50%">Finding Socket</div> 
+              <% elsif fuzzer.state == :incrementing %>
+                <div class="progress-bar bg-dark" style="width:50%">Incrementing</div> 
+              <% elsif fuzzer.state == :waiting_for_finish %>
+                <div class="progress-bar bg-warning" style="width:50%">Waiting For Finish</div> 
+              <% elsif fuzzer.state == :making_pool %>
+                <div class="progress-bar bg-warning" style="width:50%">Making Pool</div> 
+              <% end %>
+              <% if fuzzer.receiver_state == :stopped %>
+                <div class="progress-bar bg-danger" style="width:50%">Stopped</div> 
+              <% elsif fuzzer.receiver_state == :started %>
+                <div class="progress-bar bg-success" style="width:50%">Started</div> 
+              <% elsif fuzzer.receiver_state == :receiving %>
+                <div class="progress-bar bg-info" style="width:50%">Receiving</div> 
+              <% elsif fuzzer.receiver_state == :received %>
+                <div class="progress-bar bg-primary" style="width:50%">Received</div> 
+              <% end %>
+            <% end %>
+          </div> 
+
+          <% if job.started? && !job.cancelled? && fuzzer.is_running?%>
+            <div class="progress" id="socket-commands">
+              <% segment_length = 100 / fuzzer.max_pool %>
+              <% fuzzer.socket_pool.values.each do |socket| %>
+                  <div class="progress-bar bg-dark" style="width:<%= segment_length %>%">0x<%= socket.command.to_s(16).upcase.rjust(4, '0') %></div>
+              <% end %>
+            </div>
+
+            <div class="progress" id = "socket-states">
+              <% segment_length = 100 / fuzzer.max_pool %>
+              <% fuzzer.socket_pool.values.each do |socket| %>
+                <% if socket.state == :error %>
+                  <div class="progress-bar bg-danger" style="width:<%= segment_length %>%"><%= socket.state %></div>
+                <% elsif [:sending, :receiving, :received, :finished, :sending_result, :logging_in, :logged_in].includes? socket.state %>
+                  <div class="progress-bar bg-success" style="width:<%= segment_length %>%"><%= socket.state %></div>
+                <% elsif [:sending_manage_request, :receive_wait_request, :checking_down].includes? socket.state %>
+                  <div class="progress-bar bg-warning" style="width:<%= segment_length %>%"><%= socket.state %></div>
+                <% elsif socket.state == :free %>
+                  <div class="progress-bar bg-info" style="width:<%= segment_length %>%"><%= socket.state %></div>              
+                <% else %>
+                  <div class="progress-bar bg-dark" style="width:<%= segment_length %>%"><%= socket.state %></div>              
+                <% end %>
+              <% end %>
+            </div>
+
+            <div class="progress" id = "socket-manage-states">
+              <% segment_length = 100/fuzzer.max_pool %>
+              <% fuzzer.socket_pool.values.each do |socket| %>
+                <% if socket.manage_state == :error %>
+                  <div class="progress-bar bg-danger" style="width:<%= segment_length %>%"><%= socket.manage_state %></div>
+                <% elsif [:waiting, :notify, :success].includes? socket.manage_state %>
+                  <div class="progress-bar bg-success" style="width:<%= segment_length %>%"><%= socket.manage_state %></div>
+                <% elsif [:restart].includes? socket.manage_state %>
+                  <div class="progress-bar bg-warning" style="width:<%= segment_length %>%"><%= socket.manage_state %></div>             
+                <% else %>
+                  <div class="progress-bar bg-dark" style="width:<%= segment_length %>%"><%= socket.manage_state %></div>              
+                <% end %>
+              <% end %>
+            </div>
+
+            <div class="progress" id = "socket-timeouts">
+              <% segment_length = 100/fuzzer.max_pool %>
+              <% fuzzer.socket_pool.values.each do |socket| %>
+                <% timeout = (Time.now - socket.timeout).to_i %>
+                <div class="progress-bar bg-dark" style="width:<%= (segment_length*(timeout.to_f/fuzzer.max_timeout))%>%">
+                  <%= timeout %>/<%= fuzzer.max_timeout %>
+                </div>
+                <div class="progress-bar bg-white" style="width:<%= segment_length - (segment_length*(timeout.to_f/fuzzer.max_timeout)).to_i %>%">
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex">
+            <% if !job.started? && !job.cancelled? %>
+              <form action="/job/<%= job.uuid %>/start" method="get">
+                <div class="p-2"><button type="submit" class="btn btn-primary"><i class="fas fa-play"></i></button></div>
+              </form>
+            <% elsif job.started? && !job.cancelled? %>
+              <form action="/job/<%= job.uuid %>/stop" method="get">
+                <div class="p-2"><button type="submit" class="btn btn-danger"><i class="fas fa-stop"></i></button></div>
+              </form>
+            <% end %>
+            <form action="/job/<%= job.uuid %>/info" method="get">
+              <div class="p-2"><button type="submit" class="btn btn-info"><i class="fas fa-info-circle"></i></button></div>
+            </form>
+
+
+            <div class="p-2"><button type="button" class="btn btn-dark"><i class="fas fa-cog"></i></button></div>
+
+            <div class="ml-auto p-2">
+              <form action="/job/<%= job.uuid %>/delete" method="get">
+                <div class="p-2"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
