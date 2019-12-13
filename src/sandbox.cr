@@ -1,5 +1,18 @@
 require "./requires"
-
+socket = XMSocketTCP.new
+socket.connect_target("192.168.1.10", 34567)
+socket.login("admin", Dahua.digest "")
+xmm = Command::SystemInfo::Request.new
+socket.send_message xmm
+puts socket.receive_message.message
+puts "Please disconnect"
+sleep 20
+socket.connect_target("192.168.1.10", 34567)
+socket.login("admin", Dahua.digest "")
+xmm = Command::SystemInfo::Request.new
+socket.send_message xmm
+puts socket.receive_message.message
+socket.close
 
 
 #Command::Fuzzer::Gui.run

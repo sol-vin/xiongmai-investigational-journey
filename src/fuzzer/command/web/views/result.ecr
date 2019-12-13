@@ -4,10 +4,10 @@
 </div>
 <div class="container">
 <h3> Message: </h3>
-<% xmmessage = result.message.as(XMMessage) %>
+<% xmmessage = xmresult.message.as(XMMessage) %>
 <%= render "src/fuzzer/command/web/views/reuse/xmmessage.ecr" %>
 <br>
 <h3> Reply: </h3>
-<% xmmessage = result.reply.as(XMMessage) %>
+<% xmmessage = xmresult.reply.as(XMMessage) %>
 <%= render "src/fuzzer/command/web/views/reuse/xmmessage.ecr" %>
 </div>
