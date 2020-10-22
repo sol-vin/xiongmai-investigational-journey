@@ -1,6 +1,6 @@
 # XIongmai Investigational Journey
 
-http://0x42424242.in/xiongmai
+https://www.sol.vin/articles/xiongmai
 
 ## Installation
 
