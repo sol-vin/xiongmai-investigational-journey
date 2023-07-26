@@ -7,7 +7,7 @@ https://www.sol.vin/articles/xiongmai
 ```yaml
 dependencies:
   cli:
-    github: redcodefinal/xiongmai-investigational-journey
+    github: sol-vin/xiongmai-investigational-journey
 ```
 
 ## Usage
